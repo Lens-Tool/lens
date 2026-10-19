@@ -26,3 +26,11 @@
 ## Error handling
 
 Throw `LensError` with a code from `@lens/shared`. MCP tools return `isError: true` with `CODE: message`; the HTTP API returns `{ "error": { "code", "message" } }`.
+
+## Tests
+
+- Tests live next to the code they test, inside the package's `src/` folder.
+- Name test files `<module>.test.ts`, for example `privacy.test.ts` next to `privacy.ts`.
+- Test files are typechecked with `npm run typecheck:tests` and must pass in CI.
+- Fixtures in `fixtures/` are small, invented examples: never copy code from real projects.
+- Never put API keys, prompts or file paths from a real machine into tests or fixtures.
