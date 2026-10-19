@@ -1,0 +1,10 @@
+{
+  "files": [],
+  "references": [
+    { "path": "packages/shared" },
+    { "path": "packages/compression" },
+    { "path": "packages/task-context" },
+    { "path": "packages/connector" },
+    { "path": "apps/stats-api" }
+  ]
+}
