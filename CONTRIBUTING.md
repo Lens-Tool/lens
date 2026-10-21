@@ -2,16 +2,19 @@
 
 ## Workflow in one minute
 
-1. Pick a task assigned to you in ClickUp (ID like `T19`).
-2. Create a branch from an up-to-date `main`: `git switch main && git pull && git switch -c feat/T19-connector-slice`.
+1. Pick a task assigned to you in ClickUp (ID like `S1-15`).
+2. Create a branch from an up-to-date `develop`: `git switch develop && git pull && git switch -c feat/S1-15-compress-baseline`.
 3. Commit small and often using [Conventional Commits](https://www.conventionalcommits.org/): `feat(connector): add read_file_compressed tool`.
-4. Run `npm run check` (lint, format, build, tests) before pushing.
-5. Open a pull request using the template. Include the task ID.
-6. One teammate who does not own the change reviews it (see Review rules). Squash-merge when approved and CI is green.
+4. Run `npm run check` (lint, format, build, test typecheck, tests) before pushing.
+5. Open a pull request **into `develop`** using the template. Include the task ID.
+6. One teammate who does not own the change reviews it (see Review rules). Merge with a **merge commit** (squash is disabled) when approved and CI is green.
+7. At the end of a sprint the lead opens a release PR `develop` -> `main`.
+
+Details: `docs/branching-workflow.md`.
 
 ## Branch names
 
-`<type>/<TaskID>-<short-slug>` where type is `feat`, `fix`, `docs`, `chore`, `test` or `spike`.
+`<type>/<TaskID>-<short-slug>`, created from `develop`, where type is `feat`, `fix`, `docs`, `chore`, `test` or `spike`.
 
 ## Commit types and scopes
 
