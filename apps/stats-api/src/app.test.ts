@@ -36,4 +36,34 @@ describe('stats-api', () => {
     expect(res.body.error.code).toBe('PRIVACY_VIOLATION');
     expect(await store.count()).toBe(0);
   });
+
+  // Leak scenario 5a: unexpected server errors must not echo internal details or paths
+  it('returns a generic 500 without internal details', async () => {
+    const failing = {
+      add: () => Promise.reject(new Error('ENOENT: /home/me/secret.py')),
+      count: () => Promise.resolve(0),
+    };
+    const res = await request(createApp(failing)).post('/v1/events').send(event);
+    expect(res.status).toBe(500);
+    expect(JSON.stringify(res.body)).not.toContain('secret.py');
+    expect(JSON.stringify(res.body)).not.toContain('stack');
+  });
+
+  // Leak scenario 5b: data in the URL query string is never stored
+  it('stores only allow-listed fields and ignores query-string data', async () => {
+    const stored: unknown[] = [];
+    const capturing = {
+      add: (e: unknown) => {
+        stored.push(e);
+        return Promise.resolve();
+      },
+      count: () => Promise.resolve(stored.length),
+    };
+    await request(createApp(capturing))
+      .post('/v1/events?path=/home/me/secret.py')
+      .send(event)
+      .expect(202);
+    expect(Object.keys(stored[0] as object).sort()).toEqual(Object.keys(event).sort());
+    expect(JSON.stringify(stored)).not.toContain('secret.py');
+  });
 });

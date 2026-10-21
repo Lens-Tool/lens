@@ -13,6 +13,8 @@ const ALLOWED_KEYS = new Set<string>([
 ]);
 
 const ID_PATTERN = /^[A-Za-z0-9_-]{8,64}$/;
+// Strict UTC ISO-8601 only. Date.parse alone also accepts free text such as "Tue Oct 20 2026 (C:\secret.py)".
+const ISO_UTC_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,3})?Z$/;
 
 function isCount(value: unknown): value is number {
   return typeof value === 'number' && Number.isInteger(value) && value >= 0;
@@ -31,7 +33,8 @@ export function parseUsageEvent(input: unknown): UsageEvent {
 
   const extra = Object.keys(record).filter((key) => !ALLOWED_KEYS.has(key));
   if (extra.length > 0) {
-    throw new LensError('PRIVACY_VIOLATION', `Fields not allowed in events: ${extra.join(', ')}`);
+    // Report only how many fields were rejected: field names can themselves contain paths or text.
+    throw new LensError('PRIVACY_VIOLATION', `${extra.length} field(s) not allowed in events.`);
   }
 
   const { schemaVersion, projectId, sessionId, tool, tokensBefore, tokensAfter, durationMs } =
@@ -60,8 +63,15 @@ export function parseUsageEvent(input: unknown): UsageEvent {
       'Token and duration fields must be non-negative integers.',
     );
   }
-  if (typeof occurredAt !== 'string' || Number.isNaN(Date.parse(occurredAt))) {
-    throw new LensError('INVALID_INPUT', 'occurredAt must be an ISO-8601 timestamp.');
+  if (
+    typeof occurredAt !== 'string' ||
+    !ISO_UTC_PATTERN.test(occurredAt) ||
+    Number.isNaN(Date.parse(occurredAt))
+  ) {
+    throw new LensError(
+      'INVALID_INPUT',
+      'occurredAt must be a UTC ISO-8601 timestamp such as 2026-10-20T10:00:00.000Z.',
+    );
   }
 
   return {

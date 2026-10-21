@@ -31,4 +31,12 @@ describe('readFileCompressed (Sprint 1 vertical slice)', () => {
       code: 'UNSUPPORTED_LANGUAGE',
     });
   });
+
+  // Leak scenario 4: error messages must not repeat the file path
+  it('does not put the file path in error messages', async () => {
+    const missing = fixture('python/secret-project-name.py');
+    const error = await readFileCompressed(missing, deps).catch((e: unknown) => e);
+    expect(error).toBeInstanceOf(Error);
+    expect((error as Error).message).not.toContain('secret-project-name');
+  });
 });
