@@ -39,4 +39,34 @@ describe('parseUsageEvent (privacy gate)', () => {
     expect(() => parseUsageEvent({ ...valid, tokensAfter: -1 })).toThrow(LensError);
     expect(() => parseUsageEvent({ ...valid, tokensBefore: 1.5 })).toThrow(LensError);
   });
+
+  // Leak scenario 1: private data hidden under another field name
+  it('does not echo rejected field names (they can contain paths)', () => {
+    try {
+      parseUsageEvent({ ...valid, '/home/me/secret.py': 1 });
+      expect.unreachable('should have thrown');
+    } catch (error) {
+      expect(error).toBeInstanceOf(LensError);
+      expect((error as LensError).code).toBe('PRIVACY_VIOLATION');
+      expect((error as LensError).message).not.toContain('secret.py');
+    }
+  });
+
+  // Leak scenario 2: a path disguised as an identifier
+  it.each(['C:\\Users\\me\\repo', '/home/me/repo', '../secret', 'my project name', 'a'.repeat(65)])(
+    'rejects path-like or oversized id %j',
+    (id) => {
+      expect(() => parseUsageEvent({ ...valid, projectId: id })).toThrow(LensError);
+      expect(() => parseUsageEvent({ ...valid, sessionId: id })).toThrow(LensError);
+    },
+  );
+
+  // Leak scenario 3: free text smuggled inside the timestamp
+  it('rejects timestamps that carry extra text', () => {
+    const smuggled = 'Tue Oct 20 2026 (C:\\Users\\me\\secret.py)';
+    expect(Number.isNaN(Date.parse(smuggled))).toBe(false); // why Date.parse alone is not enough
+    expect(() => parseUsageEvent({ ...valid, occurredAt: smuggled })).toThrowError(
+      expect.objectContaining({ code: 'INVALID_INPUT' }),
+    );
+  });
 });
