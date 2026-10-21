@@ -1,4 +1,4 @@
-# LENS
+
 
 ![CI](https://github.com/Lens-Tool/lens/actions/workflows/ci.yml/badge.svg)
 
