@@ -1,72 +1,35 @@
-# ADR 0009: Tree-sitter loading strategy (WASM vs native)
+# ADR 0009: Tree-sitter loading strategy (WASM or native)
 
-**Status:** Proposed — pending Windows and macOS validation  
-**Owner:** Aya Saad Rizk  
-**Technical reviewers:** Amr Mohamed Abdelrahman, team review  
-**Date:** 2026-10-28
+Status: Proposed (provisional, pending Windows and macOS results)
+Owner: Aya Saad Rizk | Technical reviewer: Amr Mohamed Abdelrahman | Date: 2026-10-28
 
 ## Context
 
-LENS needs to parse Python, JavaScript, and TypeScript source files to extract symbols for the compressor and task layer.
-
-The S1-08 spike tested native Tree-sitter bindings and the WASM build using the same symbol extractor. Both approaches parsed the tested fixtures without syntax errors and produced identical extracted symbols.
-
-The current Linux x64 results are from a sandbox, not a team machine. Windows and macOS validation is still pending.
+LENS parses Python, JavaScript and TypeScript to extract symbols for the compressor and the task layer. Spike S1-08 ran both loading approaches with the same symbol extractor: both parsed the test fixtures without syntax errors and produced identical symbols. The only results so far come from a Linux x64 sandbox, not from team machines. Details are in `docs/research/tree-sitter.md`.
 
 ## Options
 
-1. **Native bindings:** Use `tree-sitter` and the corresponding language grammar packages. This approach was faster on the small test fixtures but depends on compatible native binaries or a working build toolchain on supported platforms.
-2. **WASM:** Use `web-tree-sitter` with compatible compiled grammar files. This approach avoids requiring a platform-specific native build toolchain and is suitable for evaluating cross-platform installation.
+1. **Native bindings.** `tree-sitter@0.21.1`, `tree-sitter-python@0.21.0`, `tree-sitter-javascript@0.21.4`, `tree-sitter-typescript@0.21.2`. Faster on the small fixtures. The packages ship prebuilt binaries only for Windows x64, Linux x64 and macOS (Intel and Apple Silicon); other platforms need a C++ compiler at install time. The latest versions of these packages do not install together (peer-dependency conflict), so versions must stay pinned.
+2. **WASM.** `web-tree-sitter@0.22.6` with the grammar files from `tree-sitter-wasms@0.1.13`. Expected to install the same way on every OS because it needs no compiler (to be confirmed on Windows). Slower on the small fixtures; large-file speed is not measured yet.
 
 ## Decision
 
-Provisionally choose WASM as the default Tree-sitter loading approach, behind a small shared `Parser` interface.
-
-Use the following pinned package versions from spike S1-08:
-
-- `web-tree-sitter@0.22.6`
-- `tree-sitter-wasms@0.1.13`
-
-Keep the shared symbol extractor independent of the loading implementation. Native bindings may be reconsidered as an optional optimization after cross-platform validation and performance benchmarking.
-
-The recommendation is conditional on successful Windows validation and acceptable performance on representative large files.
+Use WASM as the default, behind a small shared `Parser` interface, with the versions above pinned together. The symbol extractor stays independent of how the parser is loaded, so native bindings can be added later as an optional optimization.
 
 ## Grammar files and packaging
 
-The published package should include only the grammar files required for the supported languages:
+Ship only the four grammar files we need, copied into `packages/compression/grammars/` (task S2-02):
 
-- Python
-- JavaScript
-- TypeScript
-- TSX
+- `tree-sitter-python.wasm`
+- `tree-sitter-javascript.wasm`
+- `tree-sitter-typescript.wasm`
+- `tree-sitter-tsx.wasm`
 
-Do not ship the entire `tree-sitter-wasms` package if it includes unnecessary grammars.
-
-Before finalizing the package configuration, verify the actual grammar filenames, their locations, and the loading paths used by the project. TSX support must be tested separately because it was not covered by the original spike.
-
-## Validation
-
-Before treating this decision as final:
-
-- Repeat the native and WASM installation and parsing tests on a real Windows machine.
-- Record the operating system, architecture, Node.js version, installation result, parsing result, and installation time.
-- Obtain a macOS result or document the status of the second-platform validation.
-- Verify that both approaches produce equivalent symbols for the existing Python, JavaScript, and TypeScript fixtures.
-- Benchmark representative files of 1,000 or more lines before making performance claims.
-- Confirm that the pinned WASM runtime loads the selected grammar files successfully.
-
-The original spike found that `web-tree-sitter@0.27.1` could not load the grammar files from `tree-sitter-wasms@0.1.13`. These versions must not be mixed without revalidating compatibility.
+Do not depend on the whole `tree-sitter-wasms` package at runtime: it is about 50 MB because it contains many languages. TSX was not covered by the spike and must be tested separately.
 
 ## Consequences and open questions
 
-- WASM is expected to simplify cross-platform installation by avoiding platform-specific native binaries and compiler requirements.
-- Native bindings were faster on the small fixtures, but larger-file performance has not yet been established.
-- The WASM runtime and grammar versions must remain compatible and should be upgraded and tested together.
-- The package must include the correct grammar files and preserve their expected runtime paths.
-- The shared `Parser` interface should isolate the rest of LENS from implementation-specific loading details.
-- The decision should be revisited if Windows validation fails, WASM performance is unacceptable, or native bindings demonstrate a meaningful advantage across supported platforms.
-
-## References
-
-- `docs/research/tree-sitter.md`
-- Spike S1-08: tree-sitter in Node (native vs WASM) and SymbolNode design
+- `web-tree-sitter` and the grammar files must be upgraded and tested together: `web-tree-sitter@0.27.1` could not load the `tree-sitter-wasms@0.1.13` files.
+- Windows and macOS results are recorded in the S1-08 report. Aya updates this ADR's status after them.
+- Benchmark files of 1,000 lines or more before making any performance claim.
+- Revisit this decision if Windows validation fails, WASM is too slow on large files, or native shows a clear advantage on all supported platforms.
