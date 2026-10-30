@@ -1,10 +1,17 @@
 import express, { type ErrorRequestHandler, type Express } from 'express';
 import { LensError, parseUsageEvent, type UsageEvent } from '@lens/shared';
 
-/** Storage boundary. Sprint 1 uses memory; PostgreSQL arrives with the backend sprint. */
+export interface StatsSummary {
+  events: number;
+  tokensBefore: number;
+  tokensAfter: number;
+}
+
+/** Storage boundary: InMemoryEventStore for tests, PostgresEventStore for real runs. */
 export interface EventStore {
   add(event: UsageEvent): Promise<void>;
   count(): Promise<number>;
+  summary(): Promise<StatsSummary>;
 }
 
 export class InMemoryEventStore implements EventStore {
@@ -15,6 +22,13 @@ export class InMemoryEventStore implements EventStore {
   }
   count(): Promise<number> {
     return Promise.resolve(this.events.length);
+  }
+  summary(): Promise<StatsSummary> {
+    return Promise.resolve({
+      events: this.events.length,
+      tokensBefore: this.events.reduce((sum, e) => sum + e.tokensBefore, 0),
+      tokensAfter: this.events.reduce((sum, e) => sum + e.tokensAfter, 0),
+    });
   }
 }
 
@@ -30,6 +44,14 @@ export function createApp(store: EventStore = new InMemoryEventStore()): Express
     try {
       await store.add(parseUsageEvent(req.body));
       res.status(202).json({ accepted: true });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.get('/v1/stats/summary', async (_req, res, next) => {
+    try {
+      res.json(await store.summary());
     } catch (error) {
       next(error);
     }

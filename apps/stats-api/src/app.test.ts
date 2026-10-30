@@ -13,6 +13,8 @@ const event = {
   occurredAt: '2026-10-20T10:00:00.000Z',
 };
 
+const emptySummary = { events: 0, tokensBefore: 0, tokensAfter: 0 };
+
 describe('stats-api', () => {
   it('reports health', async () => {
     const res = await request(createApp()).get('/health');
@@ -42,6 +44,7 @@ describe('stats-api', () => {
     const failing = {
       add: () => Promise.reject(new Error('ENOENT: /home/me/secret.py')),
       count: () => Promise.resolve(0),
+      summary: () => Promise.resolve(emptySummary),
     };
     const res = await request(createApp(failing)).post('/v1/events').send(event);
     expect(res.status).toBe(500);
@@ -58,6 +61,7 @@ describe('stats-api', () => {
         return Promise.resolve();
       },
       count: () => Promise.resolve(stored.length),
+      summary: () => Promise.resolve(emptySummary),
     };
     await request(createApp(capturing))
       .post('/v1/events?path=/home/me/secret.py')
@@ -65,5 +69,15 @@ describe('stats-api', () => {
       .expect(202);
     expect(Object.keys(stored[0] as object).sort()).toEqual(Object.keys(event).sort());
     expect(JSON.stringify(stored)).not.toContain('secret.py');
+  });
+
+  it('returns totals from the summary endpoint', async () => {
+    const app = createApp(new InMemoryEventStore());
+    await request(app).post('/v1/events').send(event).expect(202);
+    await request(app).post('/v1/events').send(event).expect(202);
+
+    const res = await request(app).get('/v1/stats/summary');
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ events: 2, tokensBefore: 1800, tokensAfter: 600 });
   });
 });
