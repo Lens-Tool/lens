@@ -4,24 +4,26 @@ import type { UsageEvent } from '@lens/shared';
 import type { EventStore, StatsSummary } from './app.js';
 import { requireDatabaseUrl } from './config.js';
 
-interface Database {
-  projects: { id: string; name: string | null; created_at: Generated<Date> };
+/** Mirrors migrations/001_init.sql. Only UsageEvent fields are stored: keep it that way. */
+export interface Database {
+  projects: { id: string; created_at: Generated<Date> };
   sessions: { id: string; project_id: string; started_at: Generated<Date> };
   usage_events: {
-    id: Generated<number>;
+    id: Generated<string>;
     project_id: string;
-    session_id: string | null;
+    session_id: string;
+    tool: string;
     tokens_before: number;
     tokens_after: number;
-    created_at: Generated<Date>;
+    duration_ms: number;
+    occurred_at: Date;
+    received_at: Generated<Date>;
   };
 }
 
-export function createDb(): Kysely<Database> {
+export function createDb(connectionString: string = requireDatabaseUrl()): Kysely<Database> {
   return new Kysely<Database>({
-    dialect: new PostgresDialect({
-      pool: new pg.Pool({ connectionString: requireDatabaseUrl() }),
-    }),
+    dialect: new PostgresDialect({ pool: new pg.Pool({ connectionString }) }),
   });
 }
 
@@ -36,21 +38,22 @@ export class PostgresEventStore implements EventStore {
         .onConflict((oc) => oc.column('id').doNothing())
         .execute();
 
-      if (event.sessionId) {
-        await trx
-          .insertInto('sessions')
-          .values({ id: event.sessionId, project_id: event.projectId })
-          .onConflict((oc) => oc.column('id').doNothing())
-          .execute();
-      }
+      await trx
+        .insertInto('sessions')
+        .values({ id: event.sessionId, project_id: event.projectId })
+        .onConflict((oc) => oc.column('id').doNothing())
+        .execute();
 
       await trx
         .insertInto('usage_events')
         .values({
           project_id: event.projectId,
-          session_id: event.sessionId ?? null,
+          session_id: event.sessionId,
+          tool: event.tool,
           tokens_before: event.tokensBefore,
           tokens_after: event.tokensAfter,
+          duration_ms: event.durationMs,
+          occurred_at: new Date(event.occurredAt),
         })
         .execute();
     });
@@ -79,5 +82,9 @@ export class PostgresEventStore implements EventStore {
       tokensBefore: Number(row.before ?? 0),
       tokensAfter: Number(row.after ?? 0),
     };
+  }
+
+  async close(): Promise<void> {
+    await this.db.destroy();
   }
 }

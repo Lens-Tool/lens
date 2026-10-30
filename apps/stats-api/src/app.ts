@@ -7,7 +7,7 @@ export interface StatsSummary {
   tokensAfter: number;
 }
 
-/** Storage boundary. InMemoryEventStore for tests, PostgresEventStore for real runs. */
+/** Storage boundary: InMemoryEventStore for tests, PostgresEventStore for real runs. */
 export interface EventStore {
   add(event: UsageEvent): Promise<void>;
   count(): Promise<number>;
