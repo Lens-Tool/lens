@@ -14,4 +14,4 @@ ClickUp task: LENS-T__
 - [ ] Tests added or updated
 - [ ] Docs updated (if behaviour or contracts changed)
 - [ ] No code, prompt text, file paths or secrets in logs, events or fixtures
-- [ ] Branch is up to date with `main`
+- [ ] Branch is up to date with `develop`

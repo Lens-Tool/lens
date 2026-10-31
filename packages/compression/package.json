@@ -12,6 +12,7 @@
     }
   },
   "dependencies": {
-    "@lens/shared": "*"
+    "@lens/shared": "*",
+    "web-tree-sitter": "0.22.6"
   }
 }

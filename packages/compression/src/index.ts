@@ -75,3 +75,5 @@ export function compressLight(source: string, language: Language): CompressResul
 function countTriple(line: string): number {
   return (line.match(/"""|'''/g) ?? []).length;
 }
+
+export * from './parser/index.js';
