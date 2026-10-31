@@ -6,7 +6,8 @@
  */
 import type { Language } from './types.js';
 
-export type SymbolKind = 'function' | 'class' | 'method' | 'import' | 'variable';
+export type SymbolKind =
+  'function' | 'class' | 'method' | 'interface' | 'type' | 'variable' | 'import';
 
 export interface SymbolRef {
   name: string;
