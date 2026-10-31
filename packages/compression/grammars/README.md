@@ -22,4 +22,8 @@ Get-FileHash .\package\out\tree-sitter-python.wasm -Algorithm SHA256
 Get-FileHash .\packages\compression\grammars\tree-sitter-python.wasm -Algorithm SHA256
 ```
 
-Both hashes must equal the value in the table. Update the table when you add or replace a grammar.
+On Linux or macOS use `sha256sum file` (or `shasum -a 256 file`) instead of `Get-FileHash`.
+
+Both hashes must equal the value in the table. The same value is in `GRAMMAR_SHA256`
+(`src/parser/grammars.ts`) and a test fails if the bundled file differs. Update the table, that
+constant and the test data together when you add or replace a grammar.

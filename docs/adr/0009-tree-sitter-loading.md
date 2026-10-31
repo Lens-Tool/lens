@@ -33,3 +33,4 @@ Do not depend on the whole `tree-sitter-wasms` package at runtime: it is about 5
 - Windows and macOS results are recorded in the S1-08 report. Aya updates this ADR's status after them.
 - Benchmark files of 1,000 lines or more before making any performance claim.
 - Revisit this decision if Windows validation fails, WASM is too slow on large files, or native shows a clear advantage on all supported platforms.
+- The native bindings expose the same node API as web-tree-sitter (spike S1-08, finding 5), so symbol extractors written against `SyntaxNode` work with either loader.

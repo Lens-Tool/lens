@@ -1,10 +1,11 @@
+import { createHash } from 'node:crypto';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import Parser from 'web-tree-sitter';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import type { CodeParser } from './index.js';
-import { GRAMMAR_FILES, WasmParser } from './index.js';
+import { GRAMMAR_FILES, GRAMMAR_SHA256, WasmParser, withParsedFile } from './index.js';
 import { GRAMMARS_DIR } from './grammars.js';
 
 const loginPy = readFileSync(
@@ -106,5 +107,50 @@ describe('bundled grammars', () => {
     for (const file of bundled) {
       expect(statSync(join(GRAMMARS_DIR, file)).size).toBeLessThan(3 * 1024 * 1024);
     }
+  });
+
+  it('matches the recorded SHA-256 of every bundled grammar', () => {
+    for (const [language, file] of Object.entries(GRAMMAR_FILES)) {
+      const expected = GRAMMAR_SHA256[language as keyof typeof GRAMMAR_SHA256];
+      expect(expected, `${language} has no recorded hash`).toBeDefined();
+      const actual = createHash('sha256')
+        .update(readFileSync(join(GRAMMARS_DIR, file)))
+        .digest('hex');
+      expect(actual, file).toBe(expected);
+    }
+  });
+});
+
+describe('withParsedFile', () => {
+  let parser: CodeParser;
+  beforeAll(async () => {
+    parser = await WasmParser.create(['python']);
+  });
+
+  it('returns the callback result and disposes the tree afterwards', () => {
+    let captured: ReturnType<CodeParser['parse']> | undefined;
+    const count = withParsedFile(parser, 'a = 1\nb = 2\n', 'python', (file) => {
+      captured = file;
+      return file.root.namedChildren.length;
+    });
+    expect(count).toBe(2);
+    expect(() => captured?.root).toThrowError(expect.objectContaining({ code: 'INTERNAL' }));
+  });
+
+  it('disposes the tree even when the callback throws', () => {
+    let captured: ReturnType<CodeParser['parse']> | undefined;
+    expect(() =>
+      withParsedFile(parser, 'a = 1\n', 'python', (file) => {
+        captured = file;
+        throw new Error('boom');
+      }),
+    ).toThrow('boom');
+    expect(() => captured?.root).toThrow();
+  });
+
+  it('rejects an async callback, because the tree would be freed too early', () => {
+    expect(() =>
+      withParsedFile(parser, 'a = 1\n', 'python', () => Promise.resolve(1)),
+    ).toThrowError(/synchronous/);
   });
 });
