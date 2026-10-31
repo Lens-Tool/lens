@@ -2,7 +2,7 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import Parser from 'web-tree-sitter';
-import { beforeAll, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import type { CodeParser } from './index.js';
 import { GRAMMAR_FILES, WasmParser } from './index.js';
 import { GRAMMARS_DIR } from './grammars.js';
@@ -11,6 +11,10 @@ const loginPy = readFileSync(
   fileURLToPath(new URL('../../../../fixtures/python/login.py', import.meta.url)),
   'utf8',
 );
+
+afterEach(() => {
+  vi.restoreAllMocks();
+});
 
 describe('WasmParser (python)', () => {
   let parser: CodeParser;
@@ -40,7 +44,7 @@ describe('WasmParser (python)', () => {
   });
 
   it('flags a deliberate syntax error', () => {
-    const file = parser.parse('def broken(:\n    pass\n', 'python');
+    const file = parser.parse('def broken(:\n  pass\n', 'python');
     expect(file.hasSyntaxError).toBe(true);
     file.dispose();
   });
@@ -54,7 +58,7 @@ describe('WasmParser (python)', () => {
 
   it('keeps several parsed files alive at the same time', () => {
     const a = parser.parse('a = 1\n', 'python');
-    const b = parser.parse('def f():\n    pass\n', 'python');
+    const b = parser.parse('def f():\n  pass\n', 'python');
     expect(a.root.text).toBe('a = 1\n');
     expect(b.root.firstNamedChild?.type).toBe('function_definition');
     a.dispose();
@@ -79,7 +83,18 @@ describe('grammar loading', () => {
     await Promise.all([fresh.load('python'), fresh.load('python')]);
     await fresh.load('python');
     expect(spy).toHaveBeenCalledTimes(1);
-    spy.mockRestore();
+  });
+
+  it('does not put file paths in grammar load errors', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(Parser.Language, 'load').mockRejectedValueOnce(
+      new Error("ENOENT: open 'C:\\Users\\someone\\lens\\grammars\\tree-sitter-python.wasm'"),
+    );
+    const fresh = await WasmParser.create();
+    const error = await fresh.load('python').catch((e: unknown) => e);
+    expect(error).toMatchObject({ code: 'INTERNAL' });
+    expect((error as Error).message).not.toContain('someone');
+    expect((error as Error).message).not.toContain('C:');
   });
 });
 
