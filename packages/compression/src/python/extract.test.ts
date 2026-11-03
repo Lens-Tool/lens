@@ -253,6 +253,32 @@ class _Hidden:
     ]);
   });
 
+  it('same-name siblings (property setter, overloads) get unique ids', () => {
+    const [cls] = extract(`
+class A:
+    @property
+    def x(self):
+        return 1
+
+    @x.setter
+    def x(self, v):
+        pass
+`);
+    expect(cls?.children?.map((m) => [m.qualifiedName, m.id])).toEqual([
+      ['A.x', 'A.x:method'],
+      ['A.x', 'A.x:method#2'],
+    ]);
+    const overloads = extract(`
+@overload
+def f(a: int) -> int: ...
+@overload
+def f(a: str) -> str: ...
+def f(a):
+    return a
+`);
+    expect(overloads.map((s) => s.id)).toEqual(['f:function', 'f:function#2', 'f:function#3']);
+  });
+
   it('known gaps: nested functions and lambdas are not extracted', () => {
     const f = first(`
 def outer():
@@ -315,6 +341,19 @@ describe('extractPythonSymbols on the fixtures', () => {
       const source = readFileSync(file, 'utf8');
       const lineCount = source.split(/\r?\n/).length;
       for (const s of extractPythonSymbolsFromSource(parser, source)) check(s, lineCount);
+    },
+  );
+
+  it.each(files.map((f) => [f.slice(FIXTURES.length), f] as const))(
+    '%s: ids are unique',
+    (_name, file) => {
+      const ids: string[] = [];
+      const walk = (s: SymbolNode): void => {
+        ids.push(s.id);
+        s.children?.forEach(walk);
+      };
+      extractPythonSymbolsFromSource(parser, readFileSync(file, 'utf8')).forEach(walk);
+      expect(new Set(ids).size).toBe(ids.length);
     },
   );
 

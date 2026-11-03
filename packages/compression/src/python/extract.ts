@@ -13,6 +13,8 @@
  *  - Lambdas are not extracted.
  *  - Defs and classes inside module-level `if` / `try` / `with` blocks (for example
  *    `if TYPE_CHECKING:`) are not extracted.
+ *  - Siblings with the same name (property getter/setter, @overload) are all returned. `id` stays
+ *    unique by adding `#2`, `#3` to the later ones; `qualifiedName` is the same for all of them.
  *  - A docstring made of several adjacent string literals ("a" "b") is not recognised.
  *  - A one-line body (`def f(): return 1`) has no `body` range: dropping that line would also drop
  *    the header.
@@ -43,9 +45,15 @@ function collect(
   inClass: boolean,
 ): SymbolNode[] {
   const out: SymbolNode[] = [];
+  const seen = new Map<string, number>();
   for (const child of container.namedChildren) {
     const symbol = toSymbol(child, source, scope, inClass);
-    if (symbol) out.push(symbol);
+    if (!symbol) continue;
+    // Same-name siblings (property getter/setter, @overload) must not share an id.
+    const count = (seen.get(symbol.id) ?? 0) + 1;
+    seen.set(symbol.id, count);
+    if (count > 1) symbol.id = `${symbol.id}#${count}`;
+    out.push(symbol);
   }
   return out;
 }
