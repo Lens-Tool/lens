@@ -1,4 +1,3 @@
-
 from typing import Any, Optional
 
 from utils import generate_identifier, normalize_text
