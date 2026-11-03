@@ -1,6 +1,6 @@
 # ADR 0003: How anonymous project and session IDs are generated
 
-Status: Proposed
+Status: Accepted
 Owner: Ahmed Mohamed Ahmed Yousry | Technical reviewer: Esraa Ahmed Abo-Elaas | Date: 2026-10-20
 
 ## Context
