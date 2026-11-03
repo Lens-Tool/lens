@@ -22,7 +22,7 @@ git switch -c feat/S1-15-compress-baseline   # <type>/<TaskID>-<slug>
 # work, commit often
 npm run check
 git push -u origin feat/S1-15-compress-baseline
-``
+```
 
 1. Open a PR with **base: develop** (it is the default).
 2. Title starts with the task ID: `[S1-15] Harden baseline compressor`.

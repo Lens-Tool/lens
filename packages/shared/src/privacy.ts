@@ -13,6 +13,11 @@ const ALLOWED_KEYS = new Set<string>([
 ]);
 
 const ID_PATTERN = /^[A-Za-z0-9_-]{8,64}$/;
+
+/** True for an opaque project/session id: 8-64 characters of A-Z a-z 0-9 _ - (no paths, no spaces). */
+export function isAnonymousId(value: unknown): value is string {
+  return typeof value === 'string' && ID_PATTERN.test(value);
+}
 // Strict UTC ISO-8601 only. Date.parse alone also accepts free text such as "Tue Oct 20 2026 (C:\secret.py)".
 const ISO_UTC_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,3})?Z$/;
 
@@ -42,13 +47,13 @@ export function parseUsageEvent(input: unknown): UsageEvent {
   const occurredAt = record.occurredAt;
 
   if (schemaVersion !== 1) throw new LensError('INVALID_INPUT', 'schemaVersion must be 1.');
-  if (typeof projectId !== 'string' || !ID_PATTERN.test(projectId)) {
+  if (!isAnonymousId(projectId)) {
     throw new LensError(
       'INVALID_INPUT',
       'projectId must be an opaque id (8-64 chars: A-Z a-z 0-9 _ -).',
     );
   }
-  if (typeof sessionId !== 'string' || !ID_PATTERN.test(sessionId)) {
+  if (!isAnonymousId(sessionId)) {
     throw new LensError(
       'INVALID_INPUT',
       'sessionId must be an opaque id (8-64 chars: A-Z a-z 0-9 _ -).',
