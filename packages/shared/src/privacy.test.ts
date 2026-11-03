@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { LensError, parseUsageEvent } from './index.js';
+import { isAnonymousId, LensError, parseUsageEvent } from './index.js';
 
 const valid = {
   schemaVersion: 1,
@@ -68,5 +68,23 @@ describe('parseUsageEvent (privacy gate)', () => {
     expect(() => parseUsageEvent({ ...valid, occurredAt: smuggled })).toThrowError(
       expect.objectContaining({ code: 'INVALID_INPUT' }),
     );
+  });
+});
+
+describe('isAnonymousId', () => {
+  it('accepts opaque ids and rejects paths, spaces and wrong types', () => {
+    expect(isAnonymousId('proj_123e4567-e89b-12d3-a456-426614174000')).toBe(true);
+    for (const bad of [
+      '/home/me/repo',
+      'C:\\Users\\me',
+      'my project',
+      'short',
+      '',
+      42,
+      null,
+      undefined,
+    ]) {
+      expect(isAnonymousId(bad)).toBe(false);
+    }
   });
 });
