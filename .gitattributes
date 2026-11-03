@@ -1,2 +1,4 @@
 * text=auto eol=lf
 *.wasm binary
+
+fixtures/python-edge/crlf.py -text
