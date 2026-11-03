@@ -13,3 +13,5 @@ coverage/
 .next/
 .lens-cache/
 .lens/
+__pycache__/
+*.pyc
