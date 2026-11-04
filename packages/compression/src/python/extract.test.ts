@@ -186,16 +186,181 @@ class A:
     expect(c?.children?.[0]).toMatchObject({ qualifiedName: 'A.B.C.deep', kind: 'method' });
   });
 
-  it('ignores imports, from-imports and module-level assignments', () => {
+  describe('imports', () => {
+    it('import: name is the module, signature the whole statement', () => {
+      expect(first('import os\n')).toEqual({
+        id: 'os:import',
+        name: 'os',
+        qualifiedName: 'os',
+        kind: 'import',
+        language: 'python',
+        startLine: 1,
+        endLine: 1,
+        signature: 'import os',
+        exported: false,
+      });
+    });
+
+    it.each([
+      ['import os, sys as system', 'os, sys'],
+      ['import a.b.c as d', 'a.b.c'],
+      ['import xml.etree.ElementTree', 'xml.etree.ElementTree'],
+      ['from typing import Optional, List', 'typing'],
+      ['from os.path import join as j', 'os.path'],
+      ['from . import models', '.'],
+      ['from .models import User', '.models'],
+      ['from ..utils import helper', '..utils'],
+      ['from __future__ import annotations', '__future__'],
+      ['from os import *', 'os'],
+    ])('%s -> name "%s"', (code, name) => {
+      const [symbol, ...others] = extract(`${code}\n`);
+      expect(others).toEqual([]);
+      expect(symbol).toMatchObject({ kind: 'import', name, signature: code });
+    });
+
+    it('a parenthesised multi-line import keeps its whole text and line range', () => {
+      const symbol = first(`
+from typing import (
+    Optional,
+    List,
+)
+`);
+      expect(symbol).toMatchObject({ kind: 'import', name: 'typing', startLine: 1, endLine: 4 });
+      expect(symbol.signature).toBe('from typing import (\n    Optional,\n    List,\n)');
+      expect(symbol.body).toBeUndefined();
+    });
+
+    it('imports inside functions, classes and if/try blocks are not extracted', () => {
+      const names = extract(`
+def f():
+    import json
+class A:
+    import csv
+if True:
+    import re
+try:
+    import yaml
+except ImportError:
+    pass
+`).map((s) => s.name);
+      expect(names).toEqual(['f', 'A']);
+    });
+
+    it('the same import twice gets two different ids', () => {
+      const ids = extract('import os\nimport os\n').map((s) => s.id);
+      expect(ids).toEqual(['os:import', 'os:import#2']);
+    });
+  });
+
+  describe('module-level variables', () => {
+    it('assignment: name is the target, signature the whole statement', () => {
+      expect(first('TOKEN_TTL = 3600\n')).toEqual({
+        id: 'TOKEN_TTL:variable',
+        name: 'TOKEN_TTL',
+        qualifiedName: 'TOKEN_TTL',
+        kind: 'variable',
+        language: 'python',
+        startLine: 1,
+        endLine: 1,
+        signature: 'TOKEN_TTL = 3600',
+        exported: true,
+      });
+    });
+
+    it.each([
+      ['MAX_RETRIES: int = 5', 'MAX_RETRIES'],
+      ['NAME: str', 'NAME'],
+      ['A, B = 1, 2', 'A, B'],
+      ['(A, B) = 1, 2', 'A, B'],
+      ['[A, B] = 1, 2', 'A, B'],
+      ['first, *rest = items', 'first, rest'],
+      ['a = b = 1', 'a, b'],
+      ['x = y = z = None', 'x, y, z'],
+    ])('%s -> name "%s"', (code, name) => {
+      const [symbol, ...others] = extract(`${code}\n`);
+      expect(others).toEqual([]);
+      expect(symbol).toMatchObject({ kind: 'variable', name, signature: code });
+    });
+
+    it('a multi-line value keeps its whole text and line range', () => {
+      const symbol = first(`
+LIMITS = {
+    "small": 1,
+    "large": 100,
+}
+`);
+      expect(symbol).toMatchObject({ kind: 'variable', name: 'LIMITS', startLine: 1, endLine: 4 });
+      expect(symbol.signature).toBe('LIMITS = {\n    "small": 1,\n    "large": 100,\n}');
+    });
+
+    it('a trailing comment on the same line is not part of the signature', () => {
+      expect(first('TTL = 60  # seconds\n').signature).toBe('TTL = 60');
+    });
+
+    it('names starting with an underscore are not exported', () => {
+      expect(first('_cache = {}\n').exported).toBe(false);
+      expect(first('PUBLIC = 1\n').exported).toBe(true);
+    });
+
+    it('skips __all__, attribute and subscript targets, augmented assignments and plain calls', () => {
+      const symbols = extract(`
+__all__ = ["a", "b"]
+config.debug = True
+data["key"] = 1
+counter += 1
+print("hello")
+'A module docstring.'
+`);
+      expect(symbols).toEqual([]);
+    });
+
+    it('class-level and function-level assignments are not extracted', () => {
+      const symbols = extract(`
+class A:
+    limit = 5
+def f():
+    local = 1
+`);
+      expect(symbols.map((s) => s.name)).toEqual(['A', 'f']);
+      expect(symbols[0]?.children).toEqual([]);
+    });
+  });
+
+  it('keeps source order: imports, variables, functions and classes', () => {
     const symbols = extract(`
 import os
-from typing import Optional
 MAX = 5
-timeout: int = 30
 def f():
     pass
+from typing import Optional
+class A:
+    pass
+timeout: int = 30
 `);
-    expect(symbols.map((s) => s.name)).toEqual(['f']);
+    expect(symbols.map((s) => `${s.kind}:${s.name}`)).toEqual([
+      'import:os',
+      'variable:MAX',
+      'function:f',
+      'import:typing',
+      'class:A',
+      'variable:timeout',
+    ]);
+  });
+
+  it('works with Windows line endings and non-ASCII text', () => {
+    const symbols = extract(
+      'import os\r\nGREETING = "مرحبا 🙂"\r\nfrom typing import (\r\n    List,\r\n)\r\n',
+    );
+    expect(symbols.map((s) => s.signature)).toEqual([
+      'import os',
+      'GREETING = "مرحبا 🙂"',
+      'from typing import (\n    List,\n)',
+    ]);
+    expect(symbols.map((s) => [s.startLine, s.endLine])).toEqual([
+      [1, 1],
+      [2, 2],
+      [3, 5],
+    ]);
   });
 
   it('multi-line docstring is dedented and trimmed', () => {
@@ -288,7 +453,8 @@ def outer():
     return inner
 `);
     expect(f.children).toBeUndefined();
-    expect(extract('g = lambda x: x\n')).toEqual([]);
+    // A lambda is not a function symbol; the assignment itself is a module variable.
+    expect(extract('g = lambda x: x\n').map((x) => x.kind)).toEqual(['variable']);
   });
 
   it('empty file and comments-only file give no symbols', () => {
