@@ -77,3 +77,4 @@ function countTriple(line: string): number {
 }
 
 export * from './parser/index.js';
+export * from './python/extract.js';
