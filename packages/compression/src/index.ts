@@ -1,4 +1,5 @@
 import { LensError, type CompressResult, type Language } from '@lens/shared';
+export * from './python/renderSignatures.js';
 
 const EXTENSIONS: Record<string, Language> = {
   '.py': 'python',
