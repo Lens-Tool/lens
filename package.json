@@ -25,6 +25,7 @@
     "typecheck:tests": "tsc -p tsconfig.test.json",
     "check": "npm run lint && npm run format:check && npm run build && npm run typecheck:tests && npm test",
     "report:savings": "tsx scripts/report-savings.ts",
+    "report:savings:write": "tsx scripts/report-savings.ts --write && prettier --write docs/research/python-savings.md",
     "dev:stats": "npm run dev -w @lens/stats-api",
     "dev:connector": "npm run dev -w @lens/connector",
     "db:up": "docker compose up -d postgres redis",
