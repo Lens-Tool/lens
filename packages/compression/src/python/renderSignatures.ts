@@ -1,60 +1,46 @@
 import type { SymbolNode } from '@lens/shared';
 
 export interface RenderOptions {
+  /** `id`s of symbols (functions or methods) whose full body must stay in the output. */
   keepBodies?: ReadonlySet<string>;
+  /**
+   * What replaces an omitted body (the line numbers are those of the ORIGINAL file):
+   * - `long` (default, the format agreed in task S2-06): `... # lens: lines 8-11 omitted (expand_symbol create_token)`
+   * - `short`: `... # L8-11` (about 4 times cheaper in tokens; the agent must be told what it means)
+   */
+  marker?: 'short' | 'long';
+}
+
+const DEF_LINE = /^\s*(async\s+)?def\s/;
+
+function markerText(style: 'short' | 'long', from: number, to: number, name: string): string {
+  return style === 'short'
+    ? `... # L${from}-${to}`
+    : `... # lens: lines ${from}-${to} omitted (expand_symbol ${name})`;
 }
 
 interface Edit {
   from: number; // 0-based, inclusive
   to: number;
-  lines: string[];
+  text: string;
 }
 
-const DEF_LINE = /^\s*(async\s+)?def\s/;
-const DOC_OPEN = /^(\s*)([rRuUbB]*)("""|''')(.*)$/;
-
-function marker(from: number, to: number, name: string): string {
-  return `... # lens: lines ${from}-${to} omitted (expand_symbol ${name})`;
-}
-
-function bodyEdit(lines: string[], symbol: SymbolNode): Edit | null {
-  const body = symbol.body;
-  if (!body) return null; // one-line body, nothing to cut
-
-  const start = body.startLine - 1;
-  const end = body.endLine - 1;
-  const first = lines[start];
-  if (first === undefined || DEF_LINE.test(first)) return null;
-
-  const indent = /^\s*/.exec(first)?.[0] ?? '';
-  const kept: string[] = [];
-  let next = start; // first line to omit (0-based)
-
-  const doc = DOC_OPEN.exec(first);
-  if (doc) {
-    const [, , prefix = '', quote = '"""', rest = ''] = doc;
-    if (rest.includes(quote)) {
-      kept.push(first); // one-line docstring, keep as is
-      next = start + 1;
-    } else {
-      // multi-line docstring: keep the first line and close it, so the output stays valid
-      let close = start + 1;
-      while (close <= end && !(lines[close] ?? '').includes(quote)) close++;
-      const text = (rest.trim() || (lines[start + 1] ?? '').trim()).replace(/["']+$/, '');
-      kept.push(`${indent}${prefix}${quote}${text}${quote}`);
-      next = close + 1;
-    }
-  }
-
-  if (next > end) return { from: start, to: end, lines: kept };
-  kept.push(`${indent}${marker(next + 1, end + 1, symbol.qualifiedName)}`);
-  return { from: start, to: end, lines: kept };
-}
-
+/**
+ * Signatures-only view of a Python file: everything stays (imports, variables, decorators, class and
+ * function headers, docstrings, blank lines, comments outside bodies) except the bodies of functions
+ * and methods, which are replaced by one marker line each. The result is still valid Python.
+ *
+ * A body is only replaced when its marker is shorter than the code it replaces, so the output is
+ * never larger than the input (tiny bodies such as `return x` stay as they are).
+ *
+ * A docstring is never part of `SymbolNode.body`, so it is kept whole.
+ * A class body is never dropped as a whole: its members are in `children`, and each method body is
+ * replaced on its own.
+ */
 export function renderSignatures(
   source: string,
   symbols: readonly SymbolNode[],
-  { keepBodies = new Set<string>() }: RenderOptions = {},
+  { keepBodies = new Set<string>(), marker = 'long' }: RenderOptions = {},
 ): string {
   const eol = source.includes('\r\n') ? '\r\n' : '\n';
   const lines = source.split(/\r?\n/);
@@ -63,24 +49,34 @@ export function renderSignatures(
   const collect = (list: readonly SymbolNode[]): void => {
     for (const symbol of list) {
       if (symbol.kind === 'class') {
-        // a class body is all its members: go into children, never drop it whole
         collect(symbol.children ?? []);
-      } else if (symbol.kind === 'function' && !keepBodies.has(symbol.id)) {
-        const edit = bodyEdit(lines, symbol);
-        if (edit) edits.push(edit);
+        continue;
       }
+      const body = symbol.body; // only functions and methods have one
+      if (!body || keepBodies.has(symbol.id)) continue;
+
+      const first = lines[body.startLine - 1];
+      if (first === undefined || DEF_LINE.test(first)) continue;
+      const indent = /^\s*/.exec(first)?.[0] ?? '';
+      const text = markerText(marker, body.startLine, body.endLine, symbol.qualifiedName);
+      const bodyText = lines
+        .slice(body.startLine - 1, body.endLine)
+        .join('\n')
+        .trim();
+      if (text.length >= bodyText.length) continue;
+      edits.push({ from: body.startLine - 1, to: body.endLine - 1, text: `${indent}${text}` });
     }
   };
   collect(symbols);
   edits.sort((a, b) => a.from - b.from);
 
   const out: string[] = [];
-  let i = 0;
+  let index = 0;
   for (const edit of edits) {
-    while (i < edit.from) out.push(lines[i++] ?? '');
-    out.push(...edit.lines);
-    i = edit.to + 1;
+    while (index < edit.from) out.push(lines[index++] ?? '');
+    out.push(edit.text);
+    index = edit.to + 1;
   }
-  while (i < lines.length) out.push(lines[i++] ?? '');
+  while (index < lines.length) out.push(lines[index++] ?? '');
   return out.join(eol);
 }
