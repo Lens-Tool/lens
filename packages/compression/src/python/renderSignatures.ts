@@ -1,6 +1,6 @@
 import type { SymbolNode } from '@lens/shared';
 
-export interface RenderOptions {
+export interface RenderSignaturesOptions {
   /** `id`s of symbols (functions or methods) whose full body must stay in the output. */
   keepBodies?: ReadonlySet<string>;
   /**
@@ -10,8 +10,6 @@ export interface RenderOptions {
    */
   marker?: 'short' | 'long';
 }
-
-const DEF_LINE = /^\s*(async\s+)?def\s/;
 
 function markerText(style: 'short' | 'long', from: number, to: number, name: string): string {
   return style === 'short'
@@ -40,7 +38,7 @@ interface Edit {
 export function renderSignatures(
   source: string,
   symbols: readonly SymbolNode[],
-  { keepBodies = new Set<string>(), marker = 'long' }: RenderOptions = {},
+  { keepBodies = new Set<string>(), marker = 'long' }: RenderSignaturesOptions = {},
 ): string {
   const eol = source.includes('\r\n') ? '\r\n' : '\n';
   const lines = source.split(/\r?\n/);
@@ -56,7 +54,7 @@ export function renderSignatures(
       if (!body || keepBodies.has(symbol.id)) continue;
 
       const first = lines[body.startLine - 1];
-      if (first === undefined || DEF_LINE.test(first)) continue;
+      if (first === undefined) continue; // the extractor only sets `body` when it starts below the header
       const indent = /^\s*/.exec(first)?.[0] ?? '';
       const text = markerText(marker, body.startLine, body.endLine, symbol.qualifiedName);
       const bodyText = lines
@@ -73,6 +71,7 @@ export function renderSignatures(
   const out: string[] = [];
   let index = 0;
   for (const edit of edits) {
+    if (edit.from < index) continue; // overlapping range: never emit lines twice
     while (index < edit.from) out.push(lines[index++] ?? '');
     out.push(edit.text);
     index = edit.to + 1;
