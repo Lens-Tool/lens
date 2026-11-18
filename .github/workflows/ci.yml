@@ -27,7 +27,7 @@ jobs:
       - run: npm test
 
   db-tests:
-    runs-on: ubuntu-latest 
+    runs-on: ubuntu-latest
     services:
       postgres:
         image: postgres:16
