@@ -3,7 +3,7 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import Parser from 'web-tree-sitter';
-import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import type { CodeParser } from './index.js';
 import { GRAMMAR_FILES, GRAMMAR_SHA256, WasmParser, withParsedFile } from './index.js';
 import { GRAMMARS_DIR } from './grammars.js';
@@ -21,6 +21,10 @@ describe('WasmParser (python)', () => {
   let parser: CodeParser;
   beforeAll(async () => {
     parser = await WasmParser.create(['python']);
+  });
+
+  afterAll(() => {
+    parser.dispose?.();
   });
 
   it('parses login.py through the CodeParser interface without syntax errors', () => {
@@ -81,9 +85,23 @@ describe('grammar loading', () => {
   it('loads each grammar only once, even for concurrent calls', async () => {
     const spy = vi.spyOn(Parser.Language, 'load');
     const fresh = await WasmParser.create();
-    await Promise.all([fresh.load('python'), fresh.load('python')]);
-    await fresh.load('python');
-    expect(spy).toHaveBeenCalledTimes(1);
+    try {
+      await Promise.all([fresh.load('python'), fresh.load('python')]);
+      await fresh.load('python');
+      expect(spy).toHaveBeenCalledTimes(1);
+    } finally {
+      fresh.dispose();
+    }
+  });
+
+  it('dispose() on the parser rejects further use and is idempotent', async () => {
+    const fresh = await WasmParser.create(['python']);
+    fresh.dispose();
+    expect(() => fresh.dispose()).not.toThrow();
+    expect(() => fresh.parse('x = 1\n', 'python')).toThrowError(
+      expect.objectContaining({ code: 'INTERNAL' }),
+    );
+    await expect(fresh.load('python')).rejects.toMatchObject({ code: 'INTERNAL' });
   });
 
   it('does not put file paths in grammar load errors', async () => {
