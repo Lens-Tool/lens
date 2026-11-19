@@ -1,8 +1,7 @@
 import type { CompressResult } from '@lens/shared';
 import { withParsedFile, type CodeParser } from '../parser/index.js';
 import { extractPythonSymbols } from './extract.js';
-import { renderSignatures, type RenderOptions } from './renderSignatures.js';
-
+import { renderSignatures, type RenderSignaturesOptions } from './renderSignatures.js';
 /** Shown when a file cannot be compressed safely because the parser found syntax errors. */
 export const SYNTAX_ERROR_RAW_WARNING =
   'Syntax error detected; returning the file unchanged at level raw. Code is never omitted because of a parser problem.';
@@ -17,7 +16,7 @@ export const SYNTAX_ERROR_RAW_WARNING =
 export function compressPython(
   parser: CodeParser,
   source: string,
-  options?: RenderOptions,
+  options?: RenderSignaturesOptions,
 ): CompressResult {
   return withParsedFile(parser, source, 'python', (file) => {
     if (file.hasSyntaxError) {
