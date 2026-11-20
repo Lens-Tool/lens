@@ -42,31 +42,53 @@ class WasmParsedFile implements ParsedFile {
 export class WasmParser implements CodeParser {
   private readonly pending = new Map<Language, Promise<Parser.Language>>();
   private readonly loaded = new Map<Language, Parser.Language>();
+  private disposed = false;
 
   private constructor(private readonly parser: Parser) {}
 
   static async create(languages: readonly Language[] = []): Promise<WasmParser> {
     await initRuntime();
     const instance = new WasmParser(new Parser());
-    await Promise.all(languages.map((language) => instance.load(language)));
-    return instance;
+    try {
+      await Promise.all(languages.map((language) => instance.load(language)));
+      return instance;
+    } catch (error) {
+      instance.dispose();
+      throw error;
+    }
   }
 
   async load(language: Language): Promise<void> {
+    if (this.disposed) {
+      throw new LensError('INTERNAL', 'WasmParser was used after dispose().');
+    }
+
     if (this.loaded.has(language)) return;
+
     let loading = this.pending.get(language);
     if (!loading) {
       loading = this.readGrammar(language);
       this.pending.set(language, loading);
     }
+
     try {
-      this.loaded.set(language, await loading);
+      const grammar = await loading;
+
+      if (this.disposed) {
+        throw new LensError('INTERNAL', 'WasmParser was used after dispose().');
+      }
+
+      this.loaded.set(language, grammar);
     } finally {
       this.pending.delete(language);
     }
   }
 
   parse(source: string, language: Language): ParsedFile {
+    if (this.disposed) {
+      throw new LensError('INTERNAL', 'WasmParser was used after dispose().');
+    }
+
     const grammar = this.loaded.get(language);
     if (!grammar) {
       throw new LensError(
@@ -74,9 +96,19 @@ export class WasmParser implements CodeParser {
         `The ${language} grammar is not loaded. Call WasmParser.create(['${language}']) or await parser.load('${language}') first.`,
       );
     }
+
     this.parser.setLanguage(grammar);
     const tree = this.parser.parse(source);
     return new WasmParsedFile(language, tree, tree.rootNode.hasError);
+  }
+
+  dispose(): void {
+    if (this.disposed) return;
+
+    this.disposed = true;
+    this.loaded.clear();
+    this.pending.clear();
+    this.parser.delete();
   }
 
   private async readGrammar(language: Language): Promise<Parser.Language> {
@@ -84,6 +116,7 @@ export class WasmParser implements CodeParser {
     if (!file) {
       throw new LensError('UNSUPPORTED_LANGUAGE', `No ${language} grammar is bundled yet.`);
     }
+
     try {
       const bytes = await readFile(join(GRAMMARS_DIR, file));
       return await Parser.Language.load(new Uint8Array(bytes));

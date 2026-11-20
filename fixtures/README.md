@@ -43,6 +43,10 @@ Special syntax and parsing situations. These files are parser test data and are 
 | `empty_file.py` | A completely empty file (0 bytes). |
 | `syntax_error.py` | Intentionally invalid Python (missing colons). |
 | `crlf.py` | Windows (CRLF) line endings. |
+| `tabs.py` | Indentation with tab characters. |
+| `bom.py` | UTF-8 byte-order mark (U+FEFF) at the start of the file. |
+| `non_ascii.py` | Non-ASCII identifiers and string content. |
+| `long_line.py` | One source line well over 2k characters. |
 | `no_final_newline.py` | The last line has no final newline. |
 
 ## Rules for these files
