@@ -43,6 +43,10 @@ Special syntax and parsing situations. These files are parser test data and are 
 | `empty_file.py` | A completely empty file (0 bytes). |
 | `syntax_error.py` | Intentionally invalid Python (missing colons). |
 | `crlf.py` | Windows (CRLF) line endings. |
+| `tabs.py` | Indentation with tab characters. |
+| `bom.py` | UTF-8 byte-order mark (U+FEFF) at the start of the file. |
+| `non_ascii.py` | Non-ASCII identifiers and string content. |
+| `long_line.py` | One source line well over 2k characters. |
 | `no_final_newline.py` | The last line has no final newline. |
 
 ## Rules for these files
@@ -52,3 +56,29 @@ Special syntax and parsing situations. These files are parser test data and are 
 - `crlf.py` must keep CRLF line endings. `.gitattributes` marks it `-text` so Git does not convert it. After editing it, check that `git ls-files --eol fixtures/python-edge/crlf.py` still shows `i/crlf`.
 - Do not rename or move a fixture without updating the golden files and this README.
 - `fixtures` is listed in `.prettierignore`, so Prettier does not reformat these files.
+
+## Regenerating Python golden files
+
+Golden files in `packages/compression/src/python/golden/` are the saved, hand-reviewed expected output of the Python extractor for each fixture. If extractor behaviour changes, the golden tests show exactly what changed.
+
+Regenerate `.symbols.json` golden files with:
+
+```bash
+npx tsx scripts/generate-python-golden.ts
+```
+
+Then run `git diff packages/compression/src/python/golden` and check every changed line against the fixture source.
+
+### When regenerating is acceptable
+
+- You intentionally changed extractor behaviour or the output schema, and you reviewed the diff against the fixture source.
+- You added or modified a fixture. Review the new JSON by hand against the `.py` file before committing it.
+
+### When regenerating is not acceptable
+
+- A golden test fails and you don't understand why. Treat it as a regression and fix the extractor.
+- You are regenerating only to make CI pass.
+- The diff contains changes unrelated to your work.
+- The fixture triggers a known extractor bug (for example `python-edge/syntax_error.py`). Don't create a golden for it. Add it to `EXCLUDED` in `golden.test.ts` instead.
+
+Commit golden changes separately from code changes, and say in the commit message why the output changed.

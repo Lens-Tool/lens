@@ -1,0 +1,93 @@
+{
+  "fixture": "fixtures/python-edge/crlf.py",
+  "symbols": [
+    {
+      "id": "typing:import",
+      "name": "typing",
+      "qualifiedName": "typing",
+      "kind": "import",
+      "language": "python",
+      "startLine": 1,
+      "endLine": 1,
+      "signature": "from typing import Optional",
+      "exported": false
+    },
+    {
+      "id": "WindowsPath:class",
+      "name": "WindowsPath",
+      "qualifiedName": "WindowsPath",
+      "kind": "class",
+      "language": "python",
+      "startLine": 4,
+      "endLine": 10,
+      "signature": "class WindowsPath",
+      "exported": true,
+      "body": {
+        "startLine": 5,
+        "endLine": 10
+      },
+      "children": [
+        {
+          "id": "WindowsPath.__init__:method",
+          "name": "__init__",
+          "qualifiedName": "WindowsPath.__init__",
+          "kind": "method",
+          "language": "python",
+          "startLine": 5,
+          "endLine": 7,
+          "signature": "def __init__(self, drive: str, path: str)",
+          "exported": true,
+          "body": {
+            "startLine": 6,
+            "endLine": 7
+          }
+        },
+        {
+          "id": "WindowsPath.full_path:method",
+          "name": "full_path",
+          "qualifiedName": "WindowsPath.full_path",
+          "kind": "method",
+          "language": "python",
+          "startLine": 9,
+          "endLine": 10,
+          "signature": "def full_path(self) -> str",
+          "exported": true,
+          "body": {
+            "startLine": 10,
+            "endLine": 10
+          }
+        }
+      ]
+    },
+    {
+      "id": "normalize_path:function",
+      "name": "normalize_path",
+      "qualifiedName": "normalize_path",
+      "kind": "function",
+      "language": "python",
+      "startLine": 13,
+      "endLine": 21,
+      "signature": "def normalize_path(\n    path: str,\n    separator: str = \"\\\\\",\n    fallback: Optional[str] = None,\n) -> str",
+      "exported": true,
+      "body": {
+        "startLine": 18,
+        "endLine": 21
+      }
+    },
+    {
+      "id": "get_platform_name:function",
+      "name": "get_platform_name",
+      "qualifiedName": "get_platform_name",
+      "kind": "function",
+      "language": "python",
+      "startLine": 24,
+      "endLine": 25,
+      "signature": "def get_platform_name() -> str",
+      "exported": true,
+      "body": {
+        "startLine": 25,
+        "endLine": 25
+      }
+    }
+  ]
+}

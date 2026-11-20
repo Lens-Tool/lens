@@ -1,5 +1,4 @@
 import { LensError, type CompressResult, type Language } from '@lens/shared';
-export * from './python/renderSignatures.js';
 
 const EXTENSIONS: Record<string, Language> = {
   '.py': 'python',
@@ -79,3 +78,5 @@ function countTriple(line: string): number {
 
 export * from './parser/index.js';
 export * from './python/extract.js';
+export * from './python/renderSignatures.js';
+export * from './python/compress.js';

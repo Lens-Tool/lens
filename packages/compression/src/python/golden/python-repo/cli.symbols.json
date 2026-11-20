@@ -1,0 +1,246 @@
+{
+  "fixture": "fixtures/python-repo/cli.py",
+  "symbols": [
+    {
+      "id": "argparse:import",
+      "name": "argparse",
+      "qualifiedName": "argparse",
+      "kind": "import",
+      "language": "python",
+      "startLine": 1,
+      "endLine": 1,
+      "signature": "import argparse",
+      "exported": false
+    },
+    {
+      "id": "json:import",
+      "name": "json",
+      "qualifiedName": "json",
+      "kind": "import",
+      "language": "python",
+      "startLine": 2,
+      "endLine": 2,
+      "signature": "import json",
+      "exported": false
+    },
+    {
+      "id": "sys:import",
+      "name": "sys",
+      "qualifiedName": "sys",
+      "kind": "import",
+      "language": "python",
+      "startLine": 3,
+      "endLine": 3,
+      "signature": "import sys",
+      "exported": false
+    },
+    {
+      "id": "pathlib:import",
+      "name": "pathlib",
+      "qualifiedName": "pathlib",
+      "kind": "import",
+      "language": "python",
+      "startLine": 4,
+      "endLine": 4,
+      "signature": "from pathlib import Path",
+      "exported": false
+    },
+    {
+      "id": "typing:import",
+      "name": "typing",
+      "qualifiedName": "typing",
+      "kind": "import",
+      "language": "python",
+      "startLine": 5,
+      "endLine": 5,
+      "signature": "from typing import Optional",
+      "exported": false
+    },
+    {
+      "id": "database:import",
+      "name": "database",
+      "qualifiedName": "database",
+      "kind": "import",
+      "language": "python",
+      "startLine": 7,
+      "endLine": 7,
+      "signature": "from database import InMemoryDatabase",
+      "exported": false
+    },
+    {
+      "id": "services:import",
+      "name": "services",
+      "qualifiedName": "services",
+      "kind": "import",
+      "language": "python",
+      "startLine": 8,
+      "endLine": 8,
+      "signature": "from services import UserService",
+      "exported": false
+    },
+    {
+      "id": "DEFAULT_DATA_FILE:variable",
+      "name": "DEFAULT_DATA_FILE",
+      "qualifiedName": "DEFAULT_DATA_FILE",
+      "kind": "variable",
+      "language": "python",
+      "startLine": 10,
+      "endLine": 10,
+      "signature": "DEFAULT_DATA_FILE = \"sample-data.json\"",
+      "exported": true
+    },
+    {
+      "id": "Application:class",
+      "name": "Application",
+      "qualifiedName": "Application",
+      "kind": "class",
+      "language": "python",
+      "startLine": 13,
+      "endLine": 48,
+      "signature": "class Application",
+      "exported": true,
+      "docstring": "Coordinates the sample command-line application.",
+      "body": {
+        "startLine": 15,
+        "endLine": 48
+      },
+      "children": [
+        {
+          "id": "Application.__init__:method",
+          "name": "__init__",
+          "qualifiedName": "Application.__init__",
+          "kind": "method",
+          "language": "python",
+          "startLine": 16,
+          "endLine": 19,
+          "signature": "def __init__(self, data_file: Optional[str] = None)",
+          "exported": true,
+          "body": {
+            "startLine": 17,
+            "endLine": 19
+          }
+        },
+        {
+          "id": "Application.initialize:method",
+          "name": "initialize",
+          "qualifiedName": "Application.initialize",
+          "kind": "method",
+          "language": "python",
+          "startLine": 21,
+          "endLine": 23,
+          "signature": "def initialize(self) -> None",
+          "exported": true,
+          "body": {
+            "startLine": 22,
+            "endLine": 23
+          }
+        },
+        {
+          "id": "Application.close:method",
+          "name": "close",
+          "qualifiedName": "Application.close",
+          "kind": "method",
+          "language": "python",
+          "startLine": 25,
+          "endLine": 26,
+          "signature": "def close(self) -> None",
+          "exported": true,
+          "body": {
+            "startLine": 26,
+            "endLine": 26
+          }
+        },
+        {
+          "id": "Application.add_user:method",
+          "name": "add_user",
+          "qualifiedName": "Application.add_user",
+          "kind": "method",
+          "language": "python",
+          "startLine": 28,
+          "endLine": 37,
+          "signature": "def add_user(self, username: str, email: str, password: str) -> dict",
+          "exported": true,
+          "body": {
+            "startLine": 29,
+            "endLine": 37
+          }
+        },
+        {
+          "id": "Application.list_users:method",
+          "name": "list_users",
+          "qualifiedName": "Application.list_users",
+          "kind": "method",
+          "language": "python",
+          "startLine": 39,
+          "endLine": 40,
+          "signature": "def list_users(self) -> list[dict]",
+          "exported": true,
+          "body": {
+            "startLine": 40,
+            "endLine": 40
+          }
+        },
+        {
+          "id": "Application.export_users:method",
+          "name": "export_users",
+          "qualifiedName": "Application.export_users",
+          "kind": "method",
+          "language": "python",
+          "startLine": 42,
+          "endLine": 48,
+          "signature": "def export_users(self) -> int",
+          "exported": true,
+          "body": {
+            "startLine": 43,
+            "endLine": 48
+          }
+        }
+      ]
+    },
+    {
+      "id": "build_parser:function",
+      "name": "build_parser",
+      "qualifiedName": "build_parser",
+      "kind": "function",
+      "language": "python",
+      "startLine": 51,
+      "endLine": 65,
+      "signature": "def build_parser() -> argparse.ArgumentParser",
+      "exported": true,
+      "body": {
+        "startLine": 52,
+        "endLine": 65
+      }
+    },
+    {
+      "id": "run_command:function",
+      "name": "run_command",
+      "qualifiedName": "run_command",
+      "kind": "function",
+      "language": "python",
+      "startLine": 68,
+      "endLine": 88,
+      "signature": "def run_command(arguments: argparse.Namespace) -> int",
+      "exported": true,
+      "body": {
+        "startLine": 69,
+        "endLine": 88
+      }
+    },
+    {
+      "id": "main:function",
+      "name": "main",
+      "qualifiedName": "main",
+      "kind": "function",
+      "language": "python",
+      "startLine": 91,
+      "endLine": 97,
+      "signature": "def main(argv: Optional[list[str]] = None) -> int",
+      "exported": true,
+      "body": {
+        "startLine": 92,
+        "endLine": 97
+      }
+    }
+  ]
+}

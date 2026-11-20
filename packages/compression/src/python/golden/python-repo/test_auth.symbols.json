@@ -1,0 +1,329 @@
+{
+  "fixture": "fixtures/python-repo/test_auth.py",
+  "symbols": [
+    {
+      "id": "unittest:import",
+      "name": "unittest",
+      "qualifiedName": "unittest",
+      "kind": "import",
+      "language": "python",
+      "startLine": 1,
+      "endLine": 1,
+      "signature": "import unittest",
+      "exported": false
+    },
+    {
+      "id": "auth:import",
+      "name": "auth",
+      "qualifiedName": "auth",
+      "kind": "import",
+      "language": "python",
+      "startLine": 3,
+      "endLine": 7,
+      "signature": "from auth import (\n    AuthenticationError,\n    AuthenticationService,\n    Session,\n)",
+      "exported": false
+    },
+    {
+      "id": "models:import",
+      "name": "models",
+      "qualifiedName": "models",
+      "kind": "import",
+      "language": "python",
+      "startLine": 8,
+      "endLine": 8,
+      "signature": "from models import User",
+      "exported": false
+    },
+    {
+      "id": "TestAuthenticationService:class",
+      "name": "TestAuthenticationService",
+      "qualifiedName": "TestAuthenticationService",
+      "kind": "class",
+      "language": "python",
+      "startLine": 11,
+      "endLine": 131,
+      "signature": "class TestAuthenticationService(unittest.TestCase)",
+      "exported": true,
+      "docstring": "Tests for the fictional authentication service.",
+      "body": {
+        "startLine": 13,
+        "endLine": 131
+      },
+      "children": [
+        {
+          "id": "TestAuthenticationService.setUp:method",
+          "name": "setUp",
+          "qualifiedName": "TestAuthenticationService.setUp",
+          "kind": "method",
+          "language": "python",
+          "startLine": 14,
+          "endLine": 20,
+          "signature": "def setUp(self)",
+          "exported": true,
+          "body": {
+            "startLine": 15,
+            "endLine": 20
+          }
+        },
+        {
+          "id": "TestAuthenticationService.test_register_creates_user:method",
+          "name": "test_register_creates_user",
+          "qualifiedName": "TestAuthenticationService.test_register_creates_user",
+          "kind": "method",
+          "language": "python",
+          "startLine": 22,
+          "endLine": 25,
+          "signature": "def test_register_creates_user(self)",
+          "exported": true,
+          "body": {
+            "startLine": 23,
+            "endLine": 25
+          }
+        },
+        {
+          "id": "TestAuthenticationService.test_register_rejects_short_password:method",
+          "name": "test_register_rejects_short_password",
+          "qualifiedName": "TestAuthenticationService.test_register_rejects_short_password",
+          "kind": "method",
+          "language": "python",
+          "startLine": 27,
+          "endLine": 33,
+          "signature": "def test_register_rejects_short_password(self)",
+          "exported": true,
+          "body": {
+            "startLine": 28,
+            "endLine": 33
+          }
+        },
+        {
+          "id": "TestAuthenticationService.test_register_rejects_empty_username:method",
+          "name": "test_register_rejects_empty_username",
+          "qualifiedName": "TestAuthenticationService.test_register_rejects_empty_username",
+          "kind": "method",
+          "language": "python",
+          "startLine": 35,
+          "endLine": 41,
+          "signature": "def test_register_rejects_empty_username(self)",
+          "exported": true,
+          "body": {
+            "startLine": 36,
+            "endLine": 41
+          }
+        },
+        {
+          "id": "TestAuthenticationService.test_register_rejects_duplicate_username:method",
+          "name": "test_register_rejects_duplicate_username",
+          "qualifiedName": "TestAuthenticationService.test_register_rejects_duplicate_username",
+          "kind": "method",
+          "language": "python",
+          "startLine": 43,
+          "endLine": 49,
+          "signature": "def test_register_rejects_duplicate_username(self)",
+          "exported": true,
+          "body": {
+            "startLine": 44,
+            "endLine": 49
+          }
+        },
+        {
+          "id": "TestAuthenticationService.test_authenticate_creates_session:method",
+          "name": "test_authenticate_creates_session",
+          "qualifiedName": "TestAuthenticationService.test_authenticate_creates_session",
+          "kind": "method",
+          "language": "python",
+          "startLine": 51,
+          "endLine": 59,
+          "signature": "def test_authenticate_creates_session(self)",
+          "exported": true,
+          "body": {
+            "startLine": 52,
+            "endLine": 59
+          }
+        },
+        {
+          "id": "TestAuthenticationService.test_authenticate_rejects_unknown_user:method",
+          "name": "test_authenticate_rejects_unknown_user",
+          "qualifiedName": "TestAuthenticationService.test_authenticate_rejects_unknown_user",
+          "kind": "method",
+          "language": "python",
+          "startLine": 61,
+          "endLine": 66,
+          "signature": "def test_authenticate_rejects_unknown_user(self)",
+          "exported": true,
+          "body": {
+            "startLine": 62,
+            "endLine": 66
+          }
+        },
+        {
+          "id": "TestAuthenticationService.test_authenticate_rejects_empty_password:method",
+          "name": "test_authenticate_rejects_empty_password",
+          "qualifiedName": "TestAuthenticationService.test_authenticate_rejects_empty_password",
+          "kind": "method",
+          "language": "python",
+          "startLine": 68,
+          "endLine": 75,
+          "signature": "def test_authenticate_rejects_empty_password(self)",
+          "exported": true,
+          "body": {
+            "startLine": 69,
+            "endLine": 75
+          }
+        },
+        {
+          "id": "TestAuthenticationService.test_authenticate_rejects_wrong_password:method",
+          "name": "test_authenticate_rejects_wrong_password",
+          "qualifiedName": "TestAuthenticationService.test_authenticate_rejects_wrong_password",
+          "kind": "method",
+          "language": "python",
+          "startLine": 77,
+          "endLine": 87,
+          "signature": "def test_authenticate_rejects_wrong_password(self)",
+          "exported": true,
+          "body": {
+            "startLine": 78,
+            "endLine": 87
+          }
+        },
+        {
+          "id": "TestAuthenticationService.test_authenticate_blocks_after_max_attempts:method",
+          "name": "test_authenticate_blocks_after_max_attempts",
+          "qualifiedName": "TestAuthenticationService.test_authenticate_blocks_after_max_attempts",
+          "kind": "method",
+          "language": "python",
+          "startLine": 89,
+          "endLine": 101,
+          "signature": "def test_authenticate_blocks_after_max_attempts(self)",
+          "exported": true,
+          "body": {
+            "startLine": 90,
+            "endLine": 101
+          }
+        },
+        {
+          "id": "TestAuthenticationService.test_logout_invalidates_session:method",
+          "name": "test_logout_invalidates_session",
+          "qualifiedName": "TestAuthenticationService.test_logout_invalidates_session",
+          "kind": "method",
+          "language": "python",
+          "startLine": 103,
+          "endLine": 112,
+          "signature": "def test_logout_invalidates_session(self)",
+          "exported": true,
+          "body": {
+            "startLine": 104,
+            "endLine": 112
+          }
+        },
+        {
+          "id": "TestAuthenticationService.test_logout_returns_false_for_unknown_session:method",
+          "name": "test_logout_returns_false_for_unknown_session",
+          "qualifiedName": "TestAuthenticationService.test_logout_returns_false_for_unknown_session",
+          "kind": "method",
+          "language": "python",
+          "startLine": 114,
+          "endLine": 115,
+          "signature": "def test_logout_returns_false_for_unknown_session(self)",
+          "exported": true,
+          "body": {
+            "startLine": 115,
+            "endLine": 115
+          }
+        },
+        {
+          "id": "TestAuthenticationService.test_find_session_returns_active_session:method",
+          "name": "test_find_session_returns_active_session",
+          "qualifiedName": "TestAuthenticationService.test_find_session_returns_active_session",
+          "kind": "method",
+          "language": "python",
+          "startLine": 117,
+          "endLine": 125,
+          "signature": "def test_find_session_returns_active_session(self)",
+          "exported": true,
+          "body": {
+            "startLine": 118,
+            "endLine": 125
+          }
+        },
+        {
+          "id": "TestAuthenticationService.test_active_session_count:method",
+          "name": "test_active_session_count",
+          "qualifiedName": "TestAuthenticationService.test_active_session_count",
+          "kind": "method",
+          "language": "python",
+          "startLine": 127,
+          "endLine": 131,
+          "signature": "def test_active_session_count(self)",
+          "exported": true,
+          "body": {
+            "startLine": 128,
+            "endLine": 131
+          }
+        }
+      ]
+    },
+    {
+      "id": "TestSession:class",
+      "name": "TestSession",
+      "qualifiedName": "TestSession",
+      "kind": "class",
+      "language": "python",
+      "startLine": 134,
+      "endLine": 152,
+      "signature": "class TestSession(unittest.TestCase)",
+      "exported": true,
+      "docstring": "Tests for individual session behavior.",
+      "body": {
+        "startLine": 136,
+        "endLine": 152
+      },
+      "children": [
+        {
+          "id": "TestSession.test_new_session_is_active:method",
+          "name": "test_new_session_is_active",
+          "qualifiedName": "TestSession.test_new_session_is_active",
+          "kind": "method",
+          "language": "python",
+          "startLine": 137,
+          "endLine": 140,
+          "signature": "def test_new_session_is_active(self)",
+          "exported": true,
+          "body": {
+            "startLine": 138,
+            "endLine": 140
+          }
+        },
+        {
+          "id": "TestSession.test_invalidated_session_is_not_valid:method",
+          "name": "test_invalidated_session_is_not_valid",
+          "qualifiedName": "TestSession.test_invalidated_session_is_not_valid",
+          "kind": "method",
+          "language": "python",
+          "startLine": 142,
+          "endLine": 146,
+          "signature": "def test_invalidated_session_is_not_valid(self)",
+          "exported": true,
+          "body": {
+            "startLine": 143,
+            "endLine": 146
+          }
+        },
+        {
+          "id": "TestSession.test_invalidated_session_has_no_remaining_time:method",
+          "name": "test_invalidated_session_has_no_remaining_time",
+          "qualifiedName": "TestSession.test_invalidated_session_has_no_remaining_time",
+          "kind": "method",
+          "language": "python",
+          "startLine": 148,
+          "endLine": 152,
+          "signature": "def test_invalidated_session_has_no_remaining_time(self)",
+          "exported": true,
+          "body": {
+            "startLine": 149,
+            "endLine": 152
+          }
+        }
+      ]
+    }
+  ]
+}

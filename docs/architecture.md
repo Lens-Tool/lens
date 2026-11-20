@@ -36,3 +36,11 @@ flowchart TD
 ```
 
 Boundary rules: only `@lens/shared` is imported by every package; `UsageEvent` is the only data that crosses to the cloud; `parseUsageEvent` is the allow-list gate on both sender and receiver.
+
+## AST compressor: syntax-error fallback (S2-07)
+
+Real files are messy. The compressor must never crash and must never hide code because the parser failed.
+
+**Rule:** if the parse tree sets `hasSyntaxError`, return the file **unchanged** with `level: 'raw'` and a `warning` on `CompressResult`. Do not extract symbols or strip bodies from a broken tree. A parser problem is not a reason to omit source — the agent still needs the original text.
+
+Valid trees continue to the signatures renderer as usual. Callers must still dispose parse trees (`ParsedFile.dispose` / `withParsedFile`) so WASM memory is released after each file.

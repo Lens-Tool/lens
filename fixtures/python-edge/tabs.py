@@ -1,0 +1,13 @@
+def greet(name):
+	"""Indentation uses tabs, not spaces."""
+	message = f"hello {name}"
+	return message
+
+
+class Counter:
+	def __init__(self):
+		self.value = 0
+
+	def bump(self):
+		self.value += 1
+		return self.value

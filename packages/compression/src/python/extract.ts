@@ -32,6 +32,8 @@
  *  - `exported` follows the Python naming convention (no leading underscore, dunder methods
  *    count as public); `__all__` is not read.
  *  - Files with syntax errors: broken definitions are skipped, the rest is still extracted.
+ *    Prefer `compressPython`, which returns the file unchanged at level `raw` when
+ *    `hasSyntaxError` is set (never hide code because of a parser problem).
  */
 import type { SymbolKind, SymbolNode } from '@lens/shared';
 import { withParsedFile, type CodeParser, type SyntaxNode } from '../parser/index.js';

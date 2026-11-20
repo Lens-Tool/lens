@@ -1,0 +1,20 @@
+{
+  "fixture": "fixtures/python-edge/bom.py",
+  "symbols": [
+    {
+      "id": "bom_marker:function",
+      "name": "bom_marker",
+      "qualifiedName": "bom_marker",
+      "kind": "function",
+      "language": "python",
+      "startLine": 2,
+      "endLine": 3,
+      "signature": "def bom_marker()",
+      "exported": true,
+      "body": {
+        "startLine": 3,
+        "endLine": 3
+      }
+    }
+  ]
+}
