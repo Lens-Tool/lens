@@ -1,0 +1,330 @@
+{
+  "fixture": "fixtures/python-repo/models.py",
+  "symbols": [
+    {
+      "id": "datetime:import",
+      "name": "datetime",
+      "qualifiedName": "datetime",
+      "kind": "import",
+      "language": "python",
+      "startLine": 1,
+      "endLine": 1,
+      "signature": "from datetime import datetime, timezone",
+      "exported": false
+    },
+    {
+      "id": "typing:import",
+      "name": "typing",
+      "qualifiedName": "typing",
+      "kind": "import",
+      "language": "python",
+      "startLine": 2,
+      "endLine": 2,
+      "signature": "from typing import Optional",
+      "exported": false
+    },
+    {
+      "id": "DEFAULT_USER_ROLE:variable",
+      "name": "DEFAULT_USER_ROLE",
+      "qualifiedName": "DEFAULT_USER_ROLE",
+      "kind": "variable",
+      "language": "python",
+      "startLine": 5,
+      "endLine": 5,
+      "signature": "DEFAULT_USER_ROLE = \"member\"",
+      "exported": true
+    },
+    {
+      "id": "AVAILABLE_ROLES:variable",
+      "name": "AVAILABLE_ROLES",
+      "qualifiedName": "AVAILABLE_ROLES",
+      "kind": "variable",
+      "language": "python",
+      "startLine": 6,
+      "endLine": 6,
+      "signature": "AVAILABLE_ROLES = (\"member\", \"moderator\", \"admin\")",
+      "exported": true
+    },
+    {
+      "id": "ACCOUNT_STATUSES:variable",
+      "name": "ACCOUNT_STATUSES",
+      "qualifiedName": "ACCOUNT_STATUSES",
+      "kind": "variable",
+      "language": "python",
+      "startLine": 7,
+      "endLine": 7,
+      "signature": "ACCOUNT_STATUSES = (\"active\", \"suspended\", \"pending\")",
+      "exported": true
+    },
+    {
+      "id": "User:class",
+      "name": "User",
+      "qualifiedName": "User",
+      "kind": "class",
+      "language": "python",
+      "startLine": 10,
+      "endLine": 94,
+      "signature": "class User",
+      "exported": true,
+      "docstring": "Represents a fictional account in the sample application.",
+      "body": {
+        "startLine": 12,
+        "endLine": 94
+      },
+      "children": [
+        {
+          "id": "User.__init__:method",
+          "name": "__init__",
+          "qualifiedName": "User.__init__",
+          "kind": "method",
+          "language": "python",
+          "startLine": 13,
+          "endLine": 28,
+          "signature": "def __init__(\n    self,\n    user_id: str,\n    username: str,\n    email: str,\n    role: str = DEFAULT_USER_ROLE,\n)",
+          "exported": true,
+          "body": {
+            "startLine": 20,
+            "endLine": 28
+          }
+        },
+        {
+          "id": "User.set_display_name:method",
+          "name": "set_display_name",
+          "qualifiedName": "User.set_display_name",
+          "kind": "method",
+          "language": "python",
+          "startLine": 30,
+          "endLine": 33,
+          "signature": "def set_display_name(self, name: str) -> None",
+          "exported": true,
+          "docstring": "Update the public display name.",
+          "body": {
+            "startLine": 32,
+            "endLine": 33
+          }
+        },
+        {
+          "id": "User.update_email:method",
+          "name": "update_email",
+          "qualifiedName": "User.update_email",
+          "kind": "method",
+          "language": "python",
+          "startLine": 35,
+          "endLine": 38,
+          "signature": "def update_email(self, email: str) -> None",
+          "exported": true,
+          "docstring": "Change the account email address.",
+          "body": {
+            "startLine": 37,
+            "endLine": 38
+          }
+        },
+        {
+          "id": "User.change_role:method",
+          "name": "change_role",
+          "qualifiedName": "User.change_role",
+          "kind": "method",
+          "language": "python",
+          "startLine": 40,
+          "endLine": 47,
+          "signature": "def change_role(self, role: str) -> bool",
+          "exported": true,
+          "docstring": "Assign a supported account role.",
+          "body": {
+            "startLine": 42,
+            "endLine": 47
+          }
+        },
+        {
+          "id": "User.suspend:method",
+          "name": "suspend",
+          "qualifiedName": "User.suspend",
+          "kind": "method",
+          "language": "python",
+          "startLine": 49,
+          "endLine": 52,
+          "signature": "def suspend(self) -> None",
+          "exported": true,
+          "docstring": "Suspend the account.",
+          "body": {
+            "startLine": 51,
+            "endLine": 52
+          }
+        },
+        {
+          "id": "User.activate:method",
+          "name": "activate",
+          "qualifiedName": "User.activate",
+          "kind": "method",
+          "language": "python",
+          "startLine": 54,
+          "endLine": 57,
+          "signature": "def activate(self) -> None",
+          "exported": true,
+          "docstring": "Activate the account.",
+          "body": {
+            "startLine": 56,
+            "endLine": 57
+          }
+        },
+        {
+          "id": "User.is_active:method",
+          "name": "is_active",
+          "qualifiedName": "User.is_active",
+          "kind": "method",
+          "language": "python",
+          "startLine": 59,
+          "endLine": 61,
+          "signature": "def is_active(self) -> bool",
+          "exported": true,
+          "docstring": "Check whether the account can be used.",
+          "body": {
+            "startLine": 61,
+            "endLine": 61
+          }
+        },
+        {
+          "id": "User.set_preference:method",
+          "name": "set_preference",
+          "qualifiedName": "User.set_preference",
+          "kind": "method",
+          "language": "python",
+          "startLine": 63,
+          "endLine": 65,
+          "signature": "def set_preference(self, key: str, value: str) -> None",
+          "exported": true,
+          "docstring": "Store a simple account preference.",
+          "body": {
+            "startLine": 65,
+            "endLine": 65
+          }
+        },
+        {
+          "id": "User.get_preference:method",
+          "name": "get_preference",
+          "qualifiedName": "User.get_preference",
+          "kind": "method",
+          "language": "python",
+          "startLine": 67,
+          "endLine": 73,
+          "signature": "def get_preference(\n    self,\n    key: str,\n    default: Optional[str] = None,\n) -> Optional[str]",
+          "exported": true,
+          "docstring": "Read a preference with an optional default value.",
+          "body": {
+            "startLine": 73,
+            "endLine": 73
+          }
+        },
+        {
+          "id": "User.to_dict:method",
+          "name": "to_dict",
+          "qualifiedName": "User.to_dict",
+          "kind": "method",
+          "language": "python",
+          "startLine": 75,
+          "endLine": 87,
+          "signature": "def to_dict(self) -> dict",
+          "exported": true,
+          "docstring": "Convert the account into a serializable dictionary.",
+          "body": {
+            "startLine": 77,
+            "endLine": 87
+          }
+        },
+        {
+          "id": "User.__repr__:method",
+          "name": "__repr__",
+          "qualifiedName": "User.__repr__",
+          "kind": "method",
+          "language": "python",
+          "startLine": 89,
+          "endLine": 94,
+          "signature": "def __repr__(self) -> str",
+          "exported": true,
+          "body": {
+            "startLine": 90,
+            "endLine": 94
+          }
+        }
+      ]
+    },
+    {
+      "id": "UserProfile:class",
+      "name": "UserProfile",
+      "qualifiedName": "UserProfile",
+      "kind": "class",
+      "language": "python",
+      "startLine": 97,
+      "endLine": 119,
+      "signature": "class UserProfile",
+      "exported": true,
+      "docstring": "Stores optional information associated with a user.",
+      "body": {
+        "startLine": 99,
+        "endLine": 119
+      },
+      "children": [
+        {
+          "id": "UserProfile.__init__:method",
+          "name": "__init__",
+          "qualifiedName": "UserProfile.__init__",
+          "kind": "method",
+          "language": "python",
+          "startLine": 100,
+          "endLine": 110,
+          "signature": "def __init__(\n    self,\n    user_id: str,\n    biography: str = \"\",\n    timezone_name: str = \"UTC\",\n)",
+          "exported": true,
+          "body": {
+            "startLine": 106,
+            "endLine": 110
+          }
+        },
+        {
+          "id": "UserProfile.update_biography:method",
+          "name": "update_biography",
+          "qualifiedName": "UserProfile.update_biography",
+          "kind": "method",
+          "language": "python",
+          "startLine": 112,
+          "endLine": 113,
+          "signature": "def update_biography(self, biography: str) -> None",
+          "exported": true,
+          "body": {
+            "startLine": 113,
+            "endLine": 113
+          }
+        },
+        {
+          "id": "UserProfile.mark_seen:method",
+          "name": "mark_seen",
+          "qualifiedName": "UserProfile.mark_seen",
+          "kind": "method",
+          "language": "python",
+          "startLine": 115,
+          "endLine": 116,
+          "signature": "def mark_seen(self) -> None",
+          "exported": true,
+          "body": {
+            "startLine": 116,
+            "endLine": 116
+          }
+        },
+        {
+          "id": "UserProfile.has_avatar:method",
+          "name": "has_avatar",
+          "qualifiedName": "UserProfile.has_avatar",
+          "kind": "method",
+          "language": "python",
+          "startLine": 118,
+          "endLine": 119,
+          "signature": "def has_avatar(self) -> bool",
+          "exported": true,
+          "body": {
+            "startLine": 119,
+            "endLine": 119
+          }
+        }
+      ]
+    }
+  ]
+}

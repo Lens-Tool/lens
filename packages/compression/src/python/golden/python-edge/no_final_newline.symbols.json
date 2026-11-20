@@ -1,0 +1,21 @@
+{
+  "fixture": "fixtures/python-edge/no_final_newline.py",
+  "symbols": [
+    {
+      "id": "last_function:function",
+      "name": "last_function",
+      "qualifiedName": "last_function",
+      "kind": "function",
+      "language": "python",
+      "startLine": 1,
+      "endLine": 3,
+      "signature": "def last_function(value: int) -> int",
+      "exported": true,
+      "docstring": "The file ends right after this line, with no final newline.",
+      "body": {
+        "startLine": 3,
+        "endLine": 3
+      }
+    }
+  ]
+}

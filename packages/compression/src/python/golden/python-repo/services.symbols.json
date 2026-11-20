@@ -1,0 +1,343 @@
+{
+  "fixture": "fixtures/python-repo/services.py",
+  "symbols": [
+    {
+      "id": "datetime:import",
+      "name": "datetime",
+      "qualifiedName": "datetime",
+      "kind": "import",
+      "language": "python",
+      "startLine": 1,
+      "endLine": 1,
+      "signature": "from datetime import datetime, timezone",
+      "exported": false
+    },
+    {
+      "id": "typing:import",
+      "name": "typing",
+      "qualifiedName": "typing",
+      "kind": "import",
+      "language": "python",
+      "startLine": 2,
+      "endLine": 2,
+      "signature": "from typing import Optional",
+      "exported": false
+    },
+    {
+      "id": "auth:import",
+      "name": "auth",
+      "qualifiedName": "auth",
+      "kind": "import",
+      "language": "python",
+      "startLine": 4,
+      "endLine": 4,
+      "signature": "from auth import AuthenticationService",
+      "exported": false
+    },
+    {
+      "id": "models:import",
+      "name": "models",
+      "qualifiedName": "models",
+      "kind": "import",
+      "language": "python",
+      "startLine": 5,
+      "endLine": 5,
+      "signature": "from models import User, UserProfile",
+      "exported": false
+    },
+    {
+      "id": "utils:import",
+      "name": "utils",
+      "qualifiedName": "utils",
+      "kind": "import",
+      "language": "python",
+      "startLine": 6,
+      "endLine": 6,
+      "signature": "from utils import generate_identifier, normalize_text, paginate_items",
+      "exported": false
+    },
+    {
+      "id": "DEFAULT_PAGE_SIZE:variable",
+      "name": "DEFAULT_PAGE_SIZE",
+      "qualifiedName": "DEFAULT_PAGE_SIZE",
+      "kind": "variable",
+      "language": "python",
+      "startLine": 8,
+      "endLine": 8,
+      "signature": "DEFAULT_PAGE_SIZE = 20",
+      "exported": true
+    },
+    {
+      "id": "MAX_SEARCH_RESULTS:variable",
+      "name": "MAX_SEARCH_RESULTS",
+      "qualifiedName": "MAX_SEARCH_RESULTS",
+      "kind": "variable",
+      "language": "python",
+      "startLine": 9,
+      "endLine": 9,
+      "signature": "MAX_SEARCH_RESULTS = 50",
+      "exported": true
+    },
+    {
+      "id": "UserService:class",
+      "name": "UserService",
+      "qualifiedName": "UserService",
+      "kind": "class",
+      "language": "python",
+      "startLine": 12,
+      "endLine": 98,
+      "signature": "class UserService",
+      "exported": true,
+      "docstring": "Coordinates user account and profile operations.",
+      "body": {
+        "startLine": 14,
+        "endLine": 98
+      },
+      "children": [
+        {
+          "id": "UserService.__init__:method",
+          "name": "__init__",
+          "qualifiedName": "UserService.__init__",
+          "kind": "method",
+          "language": "python",
+          "startLine": 15,
+          "endLine": 18,
+          "signature": "def __init__(self, authentication: Optional[AuthenticationService] = None)",
+          "exported": true,
+          "body": {
+            "startLine": 16,
+            "endLine": 18
+          }
+        },
+        {
+          "id": "UserService.create_account:method",
+          "name": "create_account",
+          "qualifiedName": "UserService.create_account",
+          "kind": "method",
+          "language": "python",
+          "startLine": 20,
+          "endLine": 24,
+          "signature": "def create_account(self, username: str, email: str, password: str) -> User",
+          "exported": true,
+          "body": {
+            "startLine": 21,
+            "endLine": 24
+          }
+        },
+        {
+          "id": "UserService.get_user:method",
+          "name": "get_user",
+          "qualifiedName": "UserService.get_user",
+          "kind": "method",
+          "language": "python",
+          "startLine": 26,
+          "endLine": 27,
+          "signature": "def get_user(self, username: str) -> Optional[User]",
+          "exported": true,
+          "body": {
+            "startLine": 27,
+            "endLine": 27
+          }
+        },
+        {
+          "id": "UserService.update_profile:method",
+          "name": "update_profile",
+          "qualifiedName": "UserService.update_profile",
+          "kind": "method",
+          "language": "python",
+          "startLine": 29,
+          "endLine": 46,
+          "signature": "def update_profile(\n    self,\n    user_id: str,\n    biography: Optional[str] = None,\n    display_name: Optional[str] = None,\n) -> bool",
+          "exported": true,
+          "body": {
+            "startLine": 35,
+            "endLine": 46
+          }
+        },
+        {
+          "id": "UserService.search_users:method",
+          "name": "search_users",
+          "qualifiedName": "UserService.search_users",
+          "kind": "method",
+          "language": "python",
+          "startLine": 48,
+          "endLine": 62,
+          "signature": "def search_users(\n    self,\n    query: str,\n    page: int = 1,\n    page_size: int = DEFAULT_PAGE_SIZE,\n) -> list[User]",
+          "exported": true,
+          "body": {
+            "startLine": 54,
+            "endLine": 62
+          }
+        },
+        {
+          "id": "UserService.suspend_user:method",
+          "name": "suspend_user",
+          "qualifiedName": "UserService.suspend_user",
+          "kind": "method",
+          "language": "python",
+          "startLine": 64,
+          "endLine": 65,
+          "signature": "def suspend_user(self, user_id: str) -> bool",
+          "exported": true,
+          "body": {
+            "startLine": 65,
+            "endLine": 65
+          }
+        },
+        {
+          "id": "UserService.activate_user:method",
+          "name": "activate_user",
+          "qualifiedName": "UserService.activate_user",
+          "kind": "method",
+          "language": "python",
+          "startLine": 67,
+          "endLine": 68,
+          "signature": "def activate_user(self, user_id: str) -> bool",
+          "exported": true,
+          "body": {
+            "startLine": 68,
+            "endLine": 68
+          }
+        },
+        {
+          "id": "UserService._change_status:method",
+          "name": "_change_status",
+          "qualifiedName": "UserService._change_status",
+          "kind": "method",
+          "language": "python",
+          "startLine": 70,
+          "endLine": 77,
+          "signature": "def _change_status(self, user_id: str, action: str, event: str) -> bool",
+          "exported": false,
+          "body": {
+            "startLine": 71,
+            "endLine": 77
+          }
+        },
+        {
+          "id": "UserService.list_active_users:method",
+          "name": "list_active_users",
+          "qualifiedName": "UserService.list_active_users",
+          "kind": "method",
+          "language": "python",
+          "startLine": 79,
+          "endLine": 83,
+          "signature": "def list_active_users(self) -> list[User]",
+          "exported": true,
+          "body": {
+            "startLine": 80,
+            "endLine": 83
+          }
+        },
+        {
+          "id": "UserService._find_user_by_id:method",
+          "name": "_find_user_by_id",
+          "qualifiedName": "UserService._find_user_by_id",
+          "kind": "method",
+          "language": "python",
+          "startLine": 85,
+          "endLine": 90,
+          "signature": "def _find_user_by_id(self, user_id: str) -> Optional[User]",
+          "exported": false,
+          "body": {
+            "startLine": 86,
+            "endLine": 90
+          }
+        },
+        {
+          "id": "UserService._record_event:method",
+          "name": "_record_event",
+          "qualifiedName": "UserService._record_event",
+          "kind": "method",
+          "language": "python",
+          "startLine": 92,
+          "endLine": 98,
+          "signature": "def _record_event(self, event_name: str, user_id: str) -> None",
+          "exported": false,
+          "body": {
+            "startLine": 93,
+            "endLine": 98
+          }
+        }
+      ]
+    },
+    {
+      "id": "NotificationService:class",
+      "name": "NotificationService",
+      "qualifiedName": "NotificationService",
+      "kind": "class",
+      "language": "python",
+      "startLine": 101,
+      "endLine": 137,
+      "signature": "class NotificationService",
+      "exported": true,
+      "docstring": "Creates sample notifications for application users.",
+      "body": {
+        "startLine": 103,
+        "endLine": 137
+      },
+      "children": [
+        {
+          "id": "NotificationService.__init__:method",
+          "name": "__init__",
+          "qualifiedName": "NotificationService.__init__",
+          "kind": "method",
+          "language": "python",
+          "startLine": 104,
+          "endLine": 105,
+          "signature": "def __init__(self)",
+          "exported": true,
+          "body": {
+            "startLine": 105,
+            "endLine": 105
+          }
+        },
+        {
+          "id": "NotificationService.send:method",
+          "name": "send",
+          "qualifiedName": "NotificationService.send",
+          "kind": "method",
+          "language": "python",
+          "startLine": 107,
+          "endLine": 124,
+          "signature": "def send(\n    self,\n    user_id: str,\n    title: str,\n    message: str,\n    category: str = \"general\",\n) -> dict",
+          "exported": true,
+          "body": {
+            "startLine": 114,
+            "endLine": 124
+          }
+        },
+        {
+          "id": "NotificationService.mark_as_read:method",
+          "name": "mark_as_read",
+          "qualifiedName": "NotificationService.mark_as_read",
+          "kind": "method",
+          "language": "python",
+          "startLine": 126,
+          "endLine": 131,
+          "signature": "def mark_as_read(self, notification_id: str) -> bool",
+          "exported": true,
+          "body": {
+            "startLine": 127,
+            "endLine": 131
+          }
+        },
+        {
+          "id": "NotificationService.unread_count:method",
+          "name": "unread_count",
+          "qualifiedName": "NotificationService.unread_count",
+          "kind": "method",
+          "language": "python",
+          "startLine": 133,
+          "endLine": 137,
+          "signature": "def unread_count(self, user_id: str) -> int",
+          "exported": true,
+          "body": {
+            "startLine": 134,
+            "endLine": 137
+          }
+        }
+      ]
+    }
+  ]
+}

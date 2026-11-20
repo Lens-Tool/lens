@@ -1,0 +1,76 @@
+{
+  "fixture": "fixtures/python-edge/long_signatures.py",
+  "symbols": [
+    {
+      "id": "typing:import",
+      "name": "typing",
+      "qualifiedName": "typing",
+      "kind": "import",
+      "language": "python",
+      "startLine": 1,
+      "endLine": 1,
+      "signature": "from typing import Any, Optional",
+      "exported": false
+    },
+    {
+      "id": "create_user:function",
+      "name": "create_user",
+      "qualifiedName": "create_user",
+      "kind": "function",
+      "language": "python",
+      "startLine": 4,
+      "endLine": 19,
+      "signature": "def create_user(\n    username: str,\n    email: str,\n    age: int,\n    is_active: bool,\n    role: str = \"viewer\",\n    department: Optional[str] = None,\n) -> dict[str, Any]",
+      "exported": true,
+      "body": {
+        "startLine": 12,
+        "endLine": 19
+      }
+    },
+    {
+      "id": "calculate_order_total:function",
+      "name": "calculate_order_total",
+      "qualifiedName": "calculate_order_total",
+      "kind": "function",
+      "language": "python",
+      "startLine": 22,
+      "endLine": 31,
+      "signature": "def calculate_order_total(\n    price: float,\n    quantity: int,\n    discount: float = 0.0,\n    tax_rate: float = 0.14,\n    shipping_cost: float = 0.0,\n) -> float",
+      "exported": true,
+      "body": {
+        "startLine": 29,
+        "endLine": 31
+      }
+    },
+    {
+      "id": "process_records:function",
+      "name": "process_records",
+      "qualifiedName": "process_records",
+      "kind": "function",
+      "language": "python",
+      "startLine": 34,
+      "endLine": 50,
+      "signature": "def process_records(\n    records: list[dict[str, Any]],\n    required_fields: list[str],\n    default_values: Optional[dict[str, Any]] = None,\n    strict_mode: bool = True,\n) -> list[dict[str, Any]]",
+      "exported": true,
+      "body": {
+        "startLine": 40,
+        "endLine": 50
+      }
+    },
+    {
+      "id": "generate_report:function",
+      "name": "generate_report",
+      "qualifiedName": "generate_report",
+      "kind": "function",
+      "language": "python",
+      "startLine": 53,
+      "endLine": 70,
+      "signature": "def generate_report(\n    title: str,\n    data: list[dict[str, Any]],\n    include_header: bool = True,\n    include_summary: bool = True,\n    output_format: str = \"text\",\n) -> str",
+      "exported": true,
+      "body": {
+        "startLine": 60,
+        "endLine": 70
+      }
+    }
+  ]
+}

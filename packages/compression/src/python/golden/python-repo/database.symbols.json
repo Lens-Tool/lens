@@ -1,0 +1,260 @@
+{
+  "fixture": "fixtures/python-repo/database.py",
+  "symbols": [
+    {
+      "id": "typing:import",
+      "name": "typing",
+      "qualifiedName": "typing",
+      "kind": "import",
+      "language": "python",
+      "startLine": 1,
+      "endLine": 1,
+      "signature": "from typing import Any, Optional",
+      "exported": false
+    },
+    {
+      "id": "utils:import",
+      "name": "utils",
+      "qualifiedName": "utils",
+      "kind": "import",
+      "language": "python",
+      "startLine": 3,
+      "endLine": 3,
+      "signature": "from utils import generate_identifier, normalize_text",
+      "exported": false
+    },
+    {
+      "id": "DEFAULT_TABLE_NAME:variable",
+      "name": "DEFAULT_TABLE_NAME",
+      "qualifiedName": "DEFAULT_TABLE_NAME",
+      "kind": "variable",
+      "language": "python",
+      "startLine": 5,
+      "endLine": 5,
+      "signature": "DEFAULT_TABLE_NAME = \"records\"",
+      "exported": true
+    },
+    {
+      "id": "SUPPORTED_OPERATIONS:variable",
+      "name": "SUPPORTED_OPERATIONS",
+      "qualifiedName": "SUPPORTED_OPERATIONS",
+      "kind": "variable",
+      "language": "python",
+      "startLine": 6,
+      "endLine": 6,
+      "signature": "SUPPORTED_OPERATIONS = (\"insert\", \"update\", \"delete\", \"select\")",
+      "exported": true
+    },
+    {
+      "id": "DatabaseError:class",
+      "name": "DatabaseError",
+      "qualifiedName": "DatabaseError",
+      "kind": "class",
+      "language": "python",
+      "startLine": 9,
+      "endLine": 10,
+      "signature": "class DatabaseError(Exception)",
+      "exported": true,
+      "docstring": "Raised when a sample database operation fails.",
+      "children": []
+    },
+    {
+      "id": "InMemoryDatabase:class",
+      "name": "InMemoryDatabase",
+      "qualifiedName": "InMemoryDatabase",
+      "kind": "class",
+      "language": "python",
+      "startLine": 13,
+      "endLine": 91,
+      "signature": "class InMemoryDatabase",
+      "exported": true,
+      "docstring": "A fictional database implemented with Python dictionaries.",
+      "body": {
+        "startLine": 15,
+        "endLine": 91
+      },
+      "children": [
+        {
+          "id": "InMemoryDatabase.__init__:method",
+          "name": "__init__",
+          "qualifiedName": "InMemoryDatabase.__init__",
+          "kind": "method",
+          "language": "python",
+          "startLine": 16,
+          "endLine": 19,
+          "signature": "def __init__(self)",
+          "exported": true,
+          "body": {
+            "startLine": 17,
+            "endLine": 19
+          }
+        },
+        {
+          "id": "InMemoryDatabase.connect:method",
+          "name": "connect",
+          "qualifiedName": "InMemoryDatabase.connect",
+          "kind": "method",
+          "language": "python",
+          "startLine": 21,
+          "endLine": 23,
+          "signature": "def connect(self) -> bool",
+          "exported": true,
+          "body": {
+            "startLine": 22,
+            "endLine": 23
+          }
+        },
+        {
+          "id": "InMemoryDatabase.disconnect:method",
+          "name": "disconnect",
+          "qualifiedName": "InMemoryDatabase.disconnect",
+          "kind": "method",
+          "language": "python",
+          "startLine": 25,
+          "endLine": 26,
+          "signature": "def disconnect(self) -> None",
+          "exported": true,
+          "body": {
+            "startLine": 26,
+            "endLine": 26
+          }
+        },
+        {
+          "id": "InMemoryDatabase.create_table:method",
+          "name": "create_table",
+          "qualifiedName": "InMemoryDatabase.create_table",
+          "kind": "method",
+          "language": "python",
+          "startLine": 28,
+          "endLine": 33,
+          "signature": "def create_table(self, table_name: str) -> None",
+          "exported": true,
+          "body": {
+            "startLine": 29,
+            "endLine": 33
+          }
+        },
+        {
+          "id": "InMemoryDatabase.insert:method",
+          "name": "insert",
+          "qualifiedName": "InMemoryDatabase.insert",
+          "kind": "method",
+          "language": "python",
+          "startLine": 35,
+          "endLine": 43,
+          "signature": "def insert(self, table_name: str, record: dict[str, Any]) -> str",
+          "exported": true,
+          "body": {
+            "startLine": 36,
+            "endLine": 43
+          }
+        },
+        {
+          "id": "InMemoryDatabase.find:method",
+          "name": "find",
+          "qualifiedName": "InMemoryDatabase.find",
+          "kind": "method",
+          "language": "python",
+          "startLine": 45,
+          "endLine": 51,
+          "signature": "def find(\n    self, table_name: str, record_id: str\n) -> Optional[dict[str, Any]]",
+          "exported": true,
+          "body": {
+            "startLine": 48,
+            "endLine": 51
+          }
+        },
+        {
+          "id": "InMemoryDatabase.update:method",
+          "name": "update",
+          "qualifiedName": "InMemoryDatabase.update",
+          "kind": "method",
+          "language": "python",
+          "startLine": 53,
+          "endLine": 62,
+          "signature": "def update(\n    self, table_name: str, record_id: str, changes: dict[str, Any]\n) -> bool",
+          "exported": true,
+          "body": {
+            "startLine": 56,
+            "endLine": 62
+          }
+        },
+        {
+          "id": "InMemoryDatabase.delete:method",
+          "name": "delete",
+          "qualifiedName": "InMemoryDatabase.delete",
+          "kind": "method",
+          "language": "python",
+          "startLine": 64,
+          "endLine": 71,
+          "signature": "def delete(self, table_name: str, record_id: str) -> bool",
+          "exported": true,
+          "body": {
+            "startLine": 65,
+            "endLine": 71
+          }
+        },
+        {
+          "id": "InMemoryDatabase.select_all:method",
+          "name": "select_all",
+          "qualifiedName": "InMemoryDatabase.select_all",
+          "kind": "method",
+          "language": "python",
+          "startLine": 73,
+          "endLine": 76,
+          "signature": "def select_all(self, table_name: str) -> list[dict[str, Any]]",
+          "exported": true,
+          "body": {
+            "startLine": 74,
+            "endLine": 76
+          }
+        },
+        {
+          "id": "InMemoryDatabase.count:method",
+          "name": "count",
+          "qualifiedName": "InMemoryDatabase.count",
+          "kind": "method",
+          "language": "python",
+          "startLine": 78,
+          "endLine": 81,
+          "signature": "def count(self, table_name: str) -> int",
+          "exported": true,
+          "body": {
+            "startLine": 79,
+            "endLine": 81
+          }
+        },
+        {
+          "id": "InMemoryDatabase._require_connection:method",
+          "name": "_require_connection",
+          "qualifiedName": "InMemoryDatabase._require_connection",
+          "kind": "method",
+          "language": "python",
+          "startLine": 83,
+          "endLine": 85,
+          "signature": "def _require_connection(self) -> None",
+          "exported": false,
+          "body": {
+            "startLine": 84,
+            "endLine": 85
+          }
+        },
+        {
+          "id": "InMemoryDatabase._get_table:method",
+          "name": "_get_table",
+          "qualifiedName": "InMemoryDatabase._get_table",
+          "kind": "method",
+          "language": "python",
+          "startLine": 87,
+          "endLine": 91,
+          "signature": "def _get_table(self, table_name: str) -> dict[str, dict[str, Any]]",
+          "exported": false,
+          "body": {
+            "startLine": 88,
+            "endLine": 91
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,87 @@
+{
+  "fixture": "fixtures/python-edge/decorators.py",
+  "symbols": [
+    {
+      "id": "functools:import",
+      "name": "functools",
+      "qualifiedName": "functools",
+      "kind": "import",
+      "language": "python",
+      "startLine": 1,
+      "endLine": 1,
+      "signature": "from functools import wraps",
+      "exported": false
+    },
+    {
+      "id": "typing:import",
+      "name": "typing",
+      "qualifiedName": "typing",
+      "kind": "import",
+      "language": "python",
+      "startLine": 2,
+      "endLine": 2,
+      "signature": "from typing import Any, Callable",
+      "exported": false
+    },
+    {
+      "id": "repeat:function",
+      "name": "repeat",
+      "qualifiedName": "repeat",
+      "kind": "function",
+      "language": "python",
+      "startLine": 5,
+      "endLine": 18,
+      "signature": "def repeat(times: int = 1) -> Callable",
+      "exported": true,
+      "body": {
+        "startLine": 6,
+        "endLine": 18
+      }
+    },
+    {
+      "id": "greet:function",
+      "name": "greet",
+      "qualifiedName": "greet",
+      "kind": "function",
+      "language": "python",
+      "startLine": 21,
+      "endLine": 23,
+      "signature": "@repeat(times=3)\ndef greet(name: str) -> str",
+      "exported": true,
+      "body": {
+        "startLine": 23,
+        "endLine": 23
+      }
+    },
+    {
+      "id": "log_call:function",
+      "name": "log_call",
+      "qualifiedName": "log_call",
+      "kind": "function",
+      "language": "python",
+      "startLine": 26,
+      "endLine": 35,
+      "signature": "def log_call(prefix: str = \"LOG\") -> Callable",
+      "exported": true,
+      "body": {
+        "startLine": 27,
+        "endLine": 35
+      }
+    },
+    {
+      "id": "calculate_total:function",
+      "name": "calculate_total",
+      "qualifiedName": "calculate_total",
+      "kind": "function",
+      "language": "python",
+      "startLine": 38,
+      "endLine": 40,
+      "signature": "@log_call(prefix=\"SERVICE\")\ndef calculate_total(price: float, quantity: int) -> float",
+      "exported": true,
+      "body": {
+        "startLine": 40,
+        "endLine": 40
+      }
+    }
+  ]
+}

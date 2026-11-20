@@ -52,3 +52,9 @@ Special syntax and parsing situations. These files are parser test data and are 
 - `crlf.py` must keep CRLF line endings. `.gitattributes` marks it `-text` so Git does not convert it. After editing it, check that `git ls-files --eol fixtures/python-edge/crlf.py` still shows `i/crlf`.
 - Do not rename or move a fixture without updating the golden files and this README.
 - `fixtures` is listed in `.prettierignore`, so Prettier does not reformat these files.
+## Regenerating Python golden files
+
+Regenerate `.symbols.json` golden files with:
+
+```bash
+npx tsx scripts/generate-python-golden.ts
