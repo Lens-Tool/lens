@@ -13,7 +13,8 @@ export type ToolName = (typeof TOOL_NAMES)[number];
 
 /**
  * Compression levels. Sprint 1 implements only `light` (comment/blank-line stripping).
- * `signatures` (AST) arrives in the parser sprints; `raw` is the fallback level.
+ * `signatures` (AST) arrives in the parser sprints; `raw` is the safe fallback when the
+ * parser reports a syntax error (never hide code because of a parser problem).
  */
 export type CompressionLevel = 'raw' | 'light' | 'signatures';
 
@@ -21,6 +22,8 @@ export interface CompressResult {
   content: string;
   language: Language;
   level: CompressionLevel;
+  /** Set when compression could not be applied safely (for example a syntax error → raw). */
+  warning?: string;
 }
 
 export interface TokenCounter {

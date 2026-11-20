@@ -23,4 +23,9 @@ export interface ParsedFile {
 
 export interface CodeParser {
   parse(source: string, language: Language): ParsedFile;
+  /**
+   * Optional. Frees the parser runtime when the host is done with this instance.
+   * `ParsedFile.dispose()` frees each tree; this frees the shared parser itself.
+   */
+  dispose?(): void;
 }
