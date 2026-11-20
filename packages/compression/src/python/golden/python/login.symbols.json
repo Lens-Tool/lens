@@ -1,0 +1,73 @@
+{
+  "fixture": "fixtures/python/login.py",
+  "symbols": [
+    {
+      "id": "time:import",
+      "name": "time",
+      "qualifiedName": "time",
+      "kind": "import",
+      "language": "python",
+      "startLine": 2,
+      "endLine": 2,
+      "signature": "import time",
+      "exported": false
+    },
+    {
+      "id": "TOKEN_TTL_SECONDS:variable",
+      "name": "TOKEN_TTL_SECONDS",
+      "qualifiedName": "TOKEN_TTL_SECONDS",
+      "kind": "variable",
+      "language": "python",
+      "startLine": 4,
+      "endLine": 4,
+      "signature": "TOKEN_TTL_SECONDS = 3600",
+      "exported": true
+    },
+    {
+      "id": "create_token:function",
+      "name": "create_token",
+      "qualifiedName": "create_token",
+      "kind": "function",
+      "language": "python",
+      "startLine": 7,
+      "endLine": 11,
+      "signature": "def create_token(user_id: str) -> dict",
+      "exported": true,
+      "docstring": "Create a session token that expires after TOKEN_TTL_SECONDS.",
+      "body": {
+        "startLine": 9,
+        "endLine": 11
+      }
+    },
+    {
+      "id": "is_token_expired:function",
+      "name": "is_token_expired",
+      "qualifiedName": "is_token_expired",
+      "kind": "function",
+      "language": "python",
+      "startLine": 14,
+      "endLine": 15,
+      "signature": "def is_token_expired(token: dict) -> bool",
+      "exported": true,
+      "body": {
+        "startLine": 15,
+        "endLine": 15
+      }
+    },
+    {
+      "id": "format_username:function",
+      "name": "format_username",
+      "qualifiedName": "format_username",
+      "kind": "function",
+      "language": "python",
+      "startLine": 18,
+      "endLine": 20,
+      "signature": "def format_username(name: str) -> str",
+      "exported": true,
+      "body": {
+        "startLine": 19,
+        "endLine": 20
+      }
+    }
+  ]
+}

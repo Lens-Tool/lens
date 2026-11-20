@@ -1,0 +1,176 @@
+{
+  "fixture": "fixtures/python-repo/config.py",
+  "symbols": [
+    {
+      "id": "pathlib:import",
+      "name": "pathlib",
+      "qualifiedName": "pathlib",
+      "kind": "import",
+      "language": "python",
+      "startLine": 1,
+      "endLine": 1,
+      "signature": "from pathlib import Path",
+      "exported": false
+    },
+    {
+      "id": "typing:import",
+      "name": "typing",
+      "qualifiedName": "typing",
+      "kind": "import",
+      "language": "python",
+      "startLine": 2,
+      "endLine": 2,
+      "signature": "from typing import Any, Optional",
+      "exported": false
+    },
+    {
+      "id": "DEFAULT_CONFIG:variable",
+      "name": "DEFAULT_CONFIG",
+      "qualifiedName": "DEFAULT_CONFIG",
+      "kind": "variable",
+      "language": "python",
+      "startLine": 5,
+      "endLine": 11,
+      "signature": "DEFAULT_CONFIG = {\n    \"app_name\": \"SampleHub\",\n    \"debug\": False,\n    \"max_users\": 100,\n    \"session_timeout\": 30,\n    \"allowed_roles\": [\"admin\", \"editor\", \"viewer\"],\n}",
+      "exported": true
+    },
+    {
+      "id": "ConfigurationError:class",
+      "name": "ConfigurationError",
+      "qualifiedName": "ConfigurationError",
+      "kind": "class",
+      "language": "python",
+      "startLine": 14,
+      "endLine": 15,
+      "signature": "class ConfigurationError(Exception)",
+      "exported": true,
+      "body": {
+        "startLine": 15,
+        "endLine": 15
+      },
+      "children": []
+    },
+    {
+      "id": "AppConfig:class",
+      "name": "AppConfig",
+      "qualifiedName": "AppConfig",
+      "kind": "class",
+      "language": "python",
+      "startLine": 18,
+      "endLine": 47,
+      "signature": "class AppConfig",
+      "exported": true,
+      "body": {
+        "startLine": 19,
+        "endLine": 47
+      },
+      "children": [
+        {
+          "id": "AppConfig.__init__:method",
+          "name": "__init__",
+          "qualifiedName": "AppConfig.__init__",
+          "kind": "method",
+          "language": "python",
+          "startLine": 19,
+          "endLine": 23,
+          "signature": "def __init__(self, values: Optional[dict[str, Any]] = None)",
+          "exported": true,
+          "body": {
+            "startLine": 20,
+            "endLine": 23
+          }
+        },
+        {
+          "id": "AppConfig.get:method",
+          "name": "get",
+          "qualifiedName": "AppConfig.get",
+          "kind": "method",
+          "language": "python",
+          "startLine": 25,
+          "endLine": 26,
+          "signature": "def get(self, key: str, default: Any = None) -> Any",
+          "exported": true,
+          "body": {
+            "startLine": 26,
+            "endLine": 26
+          }
+        },
+        {
+          "id": "AppConfig.set:method",
+          "name": "set",
+          "qualifiedName": "AppConfig.set",
+          "kind": "method",
+          "language": "python",
+          "startLine": 28,
+          "endLine": 32,
+          "signature": "def set(self, key: str, value: Any) -> None",
+          "exported": true,
+          "body": {
+            "startLine": 29,
+            "endLine": 32
+          }
+        },
+        {
+          "id": "AppConfig.validate:method",
+          "name": "validate",
+          "qualifiedName": "AppConfig.validate",
+          "kind": "method",
+          "language": "python",
+          "startLine": 34,
+          "endLine": 44,
+          "signature": "def validate(self) -> bool",
+          "exported": true,
+          "body": {
+            "startLine": 35,
+            "endLine": 44
+          }
+        },
+        {
+          "id": "AppConfig.all:method",
+          "name": "all",
+          "qualifiedName": "AppConfig.all",
+          "kind": "method",
+          "language": "python",
+          "startLine": 46,
+          "endLine": 47,
+          "signature": "def all(self) -> dict[str, Any]",
+          "exported": true,
+          "body": {
+            "startLine": 47,
+            "endLine": 47
+          }
+        }
+      ]
+    },
+    {
+      "id": "load_config:function",
+      "name": "load_config",
+      "qualifiedName": "load_config",
+      "kind": "function",
+      "language": "python",
+      "startLine": 50,
+      "endLine": 56,
+      "signature": "def load_config(file_path: str) -> AppConfig",
+      "exported": true,
+      "body": {
+        "startLine": 51,
+        "endLine": 56
+      }
+    },
+    {
+      "id": "create_default_config:function",
+      "name": "create_default_config",
+      "qualifiedName": "create_default_config",
+      "kind": "function",
+      "language": "python",
+      "startLine": 59,
+      "endLine": 62,
+      "signature": "def create_default_config() -> AppConfig",
+      "exported": true,
+      "body": {
+        "startLine": 60,
+        "endLine": 62
+      }
+    }
+  ]
+}

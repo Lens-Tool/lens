@@ -1,0 +1,153 @@
+{
+  "fixture": "fixtures/python-edge/data_classes.py",
+  "symbols": [
+    {
+      "id": "dataclasses:import",
+      "name": "dataclasses",
+      "qualifiedName": "dataclasses",
+      "kind": "import",
+      "language": "python",
+      "startLine": 1,
+      "endLine": 1,
+      "signature": "from dataclasses import dataclass, field",
+      "exported": false
+    },
+    {
+      "id": "typing:import",
+      "name": "typing",
+      "qualifiedName": "typing",
+      "kind": "import",
+      "language": "python",
+      "startLine": 2,
+      "endLine": 2,
+      "signature": "from typing import Optional",
+      "exported": false
+    },
+    {
+      "id": "Address:class",
+      "name": "Address",
+      "qualifiedName": "Address",
+      "kind": "class",
+      "language": "python",
+      "startLine": 5,
+      "endLine": 9,
+      "signature": "@dataclass\nclass Address",
+      "exported": true,
+      "body": {
+        "startLine": 7,
+        "endLine": 9
+      },
+      "children": []
+    },
+    {
+      "id": "Employee:class",
+      "name": "Employee",
+      "qualifiedName": "Employee",
+      "kind": "class",
+      "language": "python",
+      "startLine": 12,
+      "endLine": 27,
+      "signature": "@dataclass\nclass Employee",
+      "exported": true,
+      "body": {
+        "startLine": 14,
+        "endLine": 27
+      },
+      "children": [
+        {
+          "id": "Employee.display_name:method",
+          "name": "display_name",
+          "qualifiedName": "Employee.display_name",
+          "kind": "method",
+          "language": "python",
+          "startLine": 22,
+          "endLine": 23,
+          "signature": "def display_name(self) -> str",
+          "exported": true,
+          "body": {
+            "startLine": 23,
+            "endLine": 23
+          }
+        },
+        {
+          "id": "Employee.add_skill:method",
+          "name": "add_skill",
+          "qualifiedName": "Employee.add_skill",
+          "kind": "method",
+          "language": "python",
+          "startLine": 25,
+          "endLine": 27,
+          "signature": "def add_skill(self, skill: str) -> None",
+          "exported": true,
+          "body": {
+            "startLine": 26,
+            "endLine": 27
+          }
+        }
+      ]
+    },
+    {
+      "id": "Product:class",
+      "name": "Product",
+      "qualifiedName": "Product",
+      "kind": "class",
+      "language": "python",
+      "startLine": 30,
+      "endLine": 34,
+      "signature": "@dataclass(frozen=True)\nclass Product",
+      "exported": true,
+      "body": {
+        "startLine": 32,
+        "endLine": 34
+      },
+      "children": []
+    },
+    {
+      "id": "Team:class",
+      "name": "Team",
+      "qualifiedName": "Team",
+      "kind": "class",
+      "language": "python",
+      "startLine": 37,
+      "endLine": 46,
+      "signature": "@dataclass\nclass Team",
+      "exported": true,
+      "body": {
+        "startLine": 39,
+        "endLine": 46
+      },
+      "children": [
+        {
+          "id": "Team.add_member:method",
+          "name": "add_member",
+          "qualifiedName": "Team.add_member",
+          "kind": "method",
+          "language": "python",
+          "startLine": 42,
+          "endLine": 43,
+          "signature": "def add_member(self, employee: Employee) -> None",
+          "exported": true,
+          "body": {
+            "startLine": 43,
+            "endLine": 43
+          }
+        },
+        {
+          "id": "Team.member_count:method",
+          "name": "member_count",
+          "qualifiedName": "Team.member_count",
+          "kind": "method",
+          "language": "python",
+          "startLine": 45,
+          "endLine": 46,
+          "signature": "def member_count(self) -> int",
+          "exported": true,
+          "body": {
+            "startLine": 46,
+            "endLine": 46
+          }
+        }
+      ]
+    }
+  ]
+}

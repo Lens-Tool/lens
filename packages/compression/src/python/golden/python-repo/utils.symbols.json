@@ -1,0 +1,254 @@
+{
+  "fixture": "fixtures/python-repo/utils.py",
+  "symbols": [
+    {
+      "id": "hashlib:import",
+      "name": "hashlib",
+      "qualifiedName": "hashlib",
+      "kind": "import",
+      "language": "python",
+      "startLine": 1,
+      "endLine": 1,
+      "signature": "import hashlib",
+      "exported": false
+    },
+    {
+      "id": "secrets:import",
+      "name": "secrets",
+      "qualifiedName": "secrets",
+      "kind": "import",
+      "language": "python",
+      "startLine": 2,
+      "endLine": 2,
+      "signature": "import secrets",
+      "exported": false
+    },
+    {
+      "id": "string:import",
+      "name": "string",
+      "qualifiedName": "string",
+      "kind": "import",
+      "language": "python",
+      "startLine": 3,
+      "endLine": 3,
+      "signature": "import string",
+      "exported": false
+    },
+    {
+      "id": "unicodedata:import",
+      "name": "unicodedata",
+      "qualifiedName": "unicodedata",
+      "kind": "import",
+      "language": "python",
+      "startLine": 4,
+      "endLine": 4,
+      "signature": "import unicodedata",
+      "exported": false
+    },
+    {
+      "id": "datetime:import",
+      "name": "datetime",
+      "qualifiedName": "datetime",
+      "kind": "import",
+      "language": "python",
+      "startLine": 5,
+      "endLine": 5,
+      "signature": "from datetime import datetime, timezone",
+      "exported": false
+    },
+    {
+      "id": "typing:import",
+      "name": "typing",
+      "qualifiedName": "typing",
+      "kind": "import",
+      "language": "python",
+      "startLine": 6,
+      "endLine": 6,
+      "signature": "from typing import Iterable, Optional",
+      "exported": false
+    },
+    {
+      "id": "DEFAULT_PAGE_SIZE:variable",
+      "name": "DEFAULT_PAGE_SIZE",
+      "qualifiedName": "DEFAULT_PAGE_SIZE",
+      "kind": "variable",
+      "language": "python",
+      "startLine": 8,
+      "endLine": 8,
+      "signature": "DEFAULT_PAGE_SIZE = 20",
+      "exported": true
+    },
+    {
+      "id": "MAX_PAGE_SIZE:variable",
+      "name": "MAX_PAGE_SIZE",
+      "qualifiedName": "MAX_PAGE_SIZE",
+      "kind": "variable",
+      "language": "python",
+      "startLine": 9,
+      "endLine": 9,
+      "signature": "MAX_PAGE_SIZE = 100",
+      "exported": true
+    },
+    {
+      "id": "IDENTIFIER_PREFIXES:variable",
+      "name": "IDENTIFIER_PREFIXES",
+      "qualifiedName": "IDENTIFIER_PREFIXES",
+      "kind": "variable",
+      "language": "python",
+      "startLine": 10,
+      "endLine": 10,
+      "signature": "IDENTIFIER_PREFIXES = (\"user\", \"session\", \"record\", \"task\")",
+      "exported": true
+    },
+    {
+      "id": "normalize_text:function",
+      "name": "normalize_text",
+      "qualifiedName": "normalize_text",
+      "kind": "function",
+      "language": "python",
+      "startLine": 13,
+      "endLine": 14,
+      "signature": "def normalize_text(value: str) -> str",
+      "exported": true,
+      "body": {
+        "startLine": 14,
+        "endLine": 14
+      }
+    },
+    {
+      "id": "generate_identifier:function",
+      "name": "generate_identifier",
+      "qualifiedName": "generate_identifier",
+      "kind": "function",
+      "language": "python",
+      "startLine": 17,
+      "endLine": 19,
+      "signature": "def generate_identifier(prefix: str = \"record\") -> str",
+      "exported": true,
+      "body": {
+        "startLine": 18,
+        "endLine": 19
+      }
+    },
+    {
+      "id": "calculate_checksum:function",
+      "name": "calculate_checksum",
+      "qualifiedName": "calculate_checksum",
+      "kind": "function",
+      "language": "python",
+      "startLine": 22,
+      "endLine": 23,
+      "signature": "def calculate_checksum(value: str) -> str",
+      "exported": true,
+      "body": {
+        "startLine": 23,
+        "endLine": 23
+      }
+    },
+    {
+      "id": "truncate_text:function",
+      "name": "truncate_text",
+      "qualifiedName": "truncate_text",
+      "kind": "function",
+      "language": "python",
+      "startLine": 26,
+      "endLine": 29,
+      "signature": "def truncate_text(value: str, limit: int = 80) -> str",
+      "exported": true,
+      "body": {
+        "startLine": 27,
+        "endLine": 29
+      }
+    },
+    {
+      "id": "paginate_items:function",
+      "name": "paginate_items",
+      "qualifiedName": "paginate_items",
+      "kind": "function",
+      "language": "python",
+      "startLine": 32,
+      "endLine": 43,
+      "signature": "def paginate_items(\n    items: Iterable,\n    page: int = 1,\n    page_size: int = DEFAULT_PAGE_SIZE,\n) -> list",
+      "exported": true,
+      "body": {
+        "startLine": 37,
+        "endLine": 43
+      }
+    },
+    {
+      "id": "format_timestamp:function",
+      "name": "format_timestamp",
+      "qualifiedName": "format_timestamp",
+      "kind": "function",
+      "language": "python",
+      "startLine": 46,
+      "endLine": 55,
+      "signature": "def format_timestamp(\n    value: Optional[datetime] = None,\n    include_seconds: bool = True,\n) -> str",
+      "exported": true,
+      "body": {
+        "startLine": 50,
+        "endLine": 55
+      }
+    },
+    {
+      "id": "validate_identifier:function",
+      "name": "validate_identifier",
+      "qualifiedName": "validate_identifier",
+      "kind": "function",
+      "language": "python",
+      "startLine": 58,
+      "endLine": 67,
+      "signature": "def validate_identifier(value: str) -> bool",
+      "exported": true,
+      "body": {
+        "startLine": 59,
+        "endLine": 67
+      }
+    },
+    {
+      "id": "unique_values:function",
+      "name": "unique_values",
+      "qualifiedName": "unique_values",
+      "kind": "function",
+      "language": "python",
+      "startLine": 70,
+      "endLine": 71,
+      "signature": "def unique_values(values: Iterable[str]) -> list[str]",
+      "exported": true,
+      "body": {
+        "startLine": 71,
+        "endLine": 71
+      }
+    },
+    {
+      "id": "safe_integer:function",
+      "name": "safe_integer",
+      "qualifiedName": "safe_integer",
+      "kind": "function",
+      "language": "python",
+      "startLine": 74,
+      "endLine": 89,
+      "signature": "def safe_integer(\n    value: object,\n    default: int = 0,\n    minimum: Optional[int] = None,\n    maximum: Optional[int] = None,\n) -> int",
+      "exported": true,
+      "body": {
+        "startLine": 80,
+        "endLine": 89
+      }
+    },
+    {
+      "id": "merge_dictionaries:function",
+      "name": "merge_dictionaries",
+      "qualifiedName": "merge_dictionaries",
+      "kind": "function",
+      "language": "python",
+      "startLine": 92,
+      "endLine": 101,
+      "signature": "def merge_dictionaries(\n    first: dict,\n    second: dict,\n    overwrite: bool = True,\n) -> dict",
+      "exported": true,
+      "body": {
+        "startLine": 97,
+        "endLine": 101
+      }
+    }
+  ]
+}

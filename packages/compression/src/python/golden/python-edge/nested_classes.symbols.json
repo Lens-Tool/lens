@@ -1,0 +1,259 @@
+{
+  "fixture": "fixtures/python-edge/nested_classes.py",
+  "symbols": [
+    {
+      "id": "University:class",
+      "name": "University",
+      "qualifiedName": "University",
+      "kind": "class",
+      "language": "python",
+      "startLine": 1,
+      "endLine": 28,
+      "signature": "class University",
+      "exported": true,
+      "body": {
+        "startLine": 2,
+        "endLine": 28
+      },
+      "children": [
+        {
+          "id": "University.__init__:method",
+          "name": "__init__",
+          "qualifiedName": "University.__init__",
+          "kind": "method",
+          "language": "python",
+          "startLine": 2,
+          "endLine": 4,
+          "signature": "def __init__(self, name: str)",
+          "exported": true,
+          "body": {
+            "startLine": 3,
+            "endLine": 4
+          }
+        },
+        {
+          "id": "University.Department:class",
+          "name": "Department",
+          "qualifiedName": "University.Department",
+          "kind": "class",
+          "language": "python",
+          "startLine": 6,
+          "endLine": 12,
+          "signature": "class Department",
+          "exported": true,
+          "body": {
+            "startLine": 7,
+            "endLine": 12
+          },
+          "children": [
+            {
+              "id": "University.Department.__init__:method",
+              "name": "__init__",
+              "qualifiedName": "University.Department.__init__",
+              "kind": "method",
+              "language": "python",
+              "startLine": 7,
+              "endLine": 9,
+              "signature": "def __init__(self, name: str, code: str)",
+              "exported": true,
+              "body": {
+                "startLine": 8,
+                "endLine": 9
+              }
+            },
+            {
+              "id": "University.Department.get_info:method",
+              "name": "get_info",
+              "qualifiedName": "University.Department.get_info",
+              "kind": "method",
+              "language": "python",
+              "startLine": 11,
+              "endLine": 12,
+              "signature": "def get_info(self) -> str",
+              "exported": true,
+              "body": {
+                "startLine": 12,
+                "endLine": 12
+              }
+            }
+          ]
+        },
+        {
+          "id": "University.Student:class",
+          "name": "Student",
+          "qualifiedName": "University.Student",
+          "kind": "class",
+          "language": "python",
+          "startLine": 14,
+          "endLine": 28,
+          "signature": "class Student",
+          "exported": true,
+          "body": {
+            "startLine": 15,
+            "endLine": 28
+          },
+          "children": [
+            {
+              "id": "University.Student.__init__:method",
+              "name": "__init__",
+              "qualifiedName": "University.Student.__init__",
+              "kind": "method",
+              "language": "python",
+              "startLine": 15,
+              "endLine": 17,
+              "signature": "def __init__(self, name: str, student_id: int)",
+              "exported": true,
+              "body": {
+                "startLine": 16,
+                "endLine": 17
+              }
+            },
+            {
+              "id": "University.Student.Contact:class",
+              "name": "Contact",
+              "qualifiedName": "University.Student.Contact",
+              "kind": "class",
+              "language": "python",
+              "startLine": 19,
+              "endLine": 25,
+              "signature": "class Contact",
+              "exported": true,
+              "body": {
+                "startLine": 20,
+                "endLine": 25
+              },
+              "children": [
+                {
+                  "id": "University.Student.Contact.__init__:method",
+                  "name": "__init__",
+                  "qualifiedName": "University.Student.Contact.__init__",
+                  "kind": "method",
+                  "language": "python",
+                  "startLine": 20,
+                  "endLine": 22,
+                  "signature": "def __init__(self, email: str, phone: str)",
+                  "exported": true,
+                  "body": {
+                    "startLine": 21,
+                    "endLine": 22
+                  }
+                },
+                {
+                  "id": "University.Student.Contact.get_email:method",
+                  "name": "get_email",
+                  "qualifiedName": "University.Student.Contact.get_email",
+                  "kind": "method",
+                  "language": "python",
+                  "startLine": 24,
+                  "endLine": 25,
+                  "signature": "def get_email(self) -> str",
+                  "exported": true,
+                  "body": {
+                    "startLine": 25,
+                    "endLine": 25
+                  }
+                }
+              ]
+            },
+            {
+              "id": "University.Student.get_details:method",
+              "name": "get_details",
+              "qualifiedName": "University.Student.get_details",
+              "kind": "method",
+              "language": "python",
+              "startLine": 27,
+              "endLine": 28,
+              "signature": "def get_details(self) -> str",
+              "exported": true,
+              "body": {
+                "startLine": 28,
+                "endLine": 28
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Application:class",
+      "name": "Application",
+      "qualifiedName": "Application",
+      "kind": "class",
+      "language": "python",
+      "startLine": 31,
+      "endLine": 39,
+      "signature": "class Application",
+      "exported": true,
+      "body": {
+        "startLine": 32,
+        "endLine": 39
+      },
+      "children": [
+        {
+          "id": "Application.Settings:class",
+          "name": "Settings",
+          "qualifiedName": "Application.Settings",
+          "kind": "class",
+          "language": "python",
+          "startLine": 32,
+          "endLine": 39,
+          "signature": "class Settings",
+          "exported": true,
+          "body": {
+            "startLine": 33,
+            "endLine": 39
+          },
+          "children": [
+            {
+              "id": "Application.Settings.Database:class",
+              "name": "Database",
+              "qualifiedName": "Application.Settings.Database",
+              "kind": "class",
+              "language": "python",
+              "startLine": 33,
+              "endLine": 39,
+              "signature": "class Database",
+              "exported": true,
+              "body": {
+                "startLine": 34,
+                "endLine": 39
+              },
+              "children": [
+                {
+                  "id": "Application.Settings.Database.__init__:method",
+                  "name": "__init__",
+                  "qualifiedName": "Application.Settings.Database.__init__",
+                  "kind": "method",
+                  "language": "python",
+                  "startLine": 34,
+                  "endLine": 36,
+                  "signature": "def __init__(self, host: str, port: int)",
+                  "exported": true,
+                  "body": {
+                    "startLine": 35,
+                    "endLine": 36
+                  }
+                },
+                {
+                  "id": "Application.Settings.Database.connection_string:method",
+                  "name": "connection_string",
+                  "qualifiedName": "Application.Settings.Database.connection_string",
+                  "kind": "method",
+                  "language": "python",
+                  "startLine": 38,
+                  "endLine": 39,
+                  "signature": "def connection_string(self) -> str",
+                  "exported": true,
+                  "body": {
+                    "startLine": 39,
+                    "endLine": 39
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

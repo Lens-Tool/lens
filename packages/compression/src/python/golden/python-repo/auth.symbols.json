@@ -1,0 +1,292 @@
+{
+  "fixture": "fixtures/python-repo/auth.py",
+  "symbols": [
+    {
+      "id": "datetime:import",
+      "name": "datetime",
+      "qualifiedName": "datetime",
+      "kind": "import",
+      "language": "python",
+      "startLine": 1,
+      "endLine": 1,
+      "signature": "from datetime import datetime, timedelta, timezone",
+      "exported": false
+    },
+    {
+      "id": "typing:import",
+      "name": "typing",
+      "qualifiedName": "typing",
+      "kind": "import",
+      "language": "python",
+      "startLine": 2,
+      "endLine": 2,
+      "signature": "from typing import Optional",
+      "exported": false
+    },
+    {
+      "id": "hashlib:import",
+      "name": "hashlib",
+      "qualifiedName": "hashlib",
+      "kind": "import",
+      "language": "python",
+      "startLine": 3,
+      "endLine": 3,
+      "signature": "import hashlib",
+      "exported": false
+    },
+    {
+      "id": "models:import",
+      "name": "models",
+      "qualifiedName": "models",
+      "kind": "import",
+      "language": "python",
+      "startLine": 5,
+      "endLine": 5,
+      "signature": "from models import User",
+      "exported": false
+    },
+    {
+      "id": "utils:import",
+      "name": "utils",
+      "qualifiedName": "utils",
+      "kind": "import",
+      "language": "python",
+      "startLine": 6,
+      "endLine": 6,
+      "signature": "from utils import normalize_text, generate_identifier",
+      "exported": false
+    },
+    {
+      "id": "SESSION_DURATION_MINUTES:variable",
+      "name": "SESSION_DURATION_MINUTES",
+      "qualifiedName": "SESSION_DURATION_MINUTES",
+      "kind": "variable",
+      "language": "python",
+      "startLine": 8,
+      "endLine": 8,
+      "signature": "SESSION_DURATION_MINUTES = 45",
+      "exported": true
+    },
+    {
+      "id": "MAX_LOGIN_ATTEMPTS:variable",
+      "name": "MAX_LOGIN_ATTEMPTS",
+      "qualifiedName": "MAX_LOGIN_ATTEMPTS",
+      "kind": "variable",
+      "language": "python",
+      "startLine": 9,
+      "endLine": 9,
+      "signature": "MAX_LOGIN_ATTEMPTS = 5",
+      "exported": true
+    },
+    {
+      "id": "PASSWORD_MIN_LENGTH:variable",
+      "name": "PASSWORD_MIN_LENGTH",
+      "qualifiedName": "PASSWORD_MIN_LENGTH",
+      "kind": "variable",
+      "language": "python",
+      "startLine": 10,
+      "endLine": 10,
+      "signature": "PASSWORD_MIN_LENGTH = 8",
+      "exported": true
+    },
+    {
+      "id": "AuthenticationError:class",
+      "name": "AuthenticationError",
+      "qualifiedName": "AuthenticationError",
+      "kind": "class",
+      "language": "python",
+      "startLine": 13,
+      "endLine": 14,
+      "signature": "class AuthenticationError(Exception)",
+      "exported": true,
+      "docstring": "Raised when an authentication operation fails.",
+      "children": []
+    },
+    {
+      "id": "Session:class",
+      "name": "Session",
+      "qualifiedName": "Session",
+      "kind": "class",
+      "language": "python",
+      "startLine": 17,
+      "endLine": 36,
+      "signature": "class Session",
+      "exported": true,
+      "docstring": "Represents a temporary authenticated user session.",
+      "body": {
+        "startLine": 19,
+        "endLine": 36
+      },
+      "children": [
+        {
+          "id": "Session.__init__:method",
+          "name": "__init__",
+          "qualifiedName": "Session.__init__",
+          "kind": "method",
+          "language": "python",
+          "startLine": 20,
+          "endLine": 25,
+          "signature": "def __init__(self, user_id: str, duration: int = SESSION_DURATION_MINUTES)",
+          "exported": true,
+          "body": {
+            "startLine": 21,
+            "endLine": 25
+          }
+        },
+        {
+          "id": "Session.is_valid:method",
+          "name": "is_valid",
+          "qualifiedName": "Session.is_valid",
+          "kind": "method",
+          "language": "python",
+          "startLine": 27,
+          "endLine": 28,
+          "signature": "def is_valid(self) -> bool",
+          "exported": true,
+          "body": {
+            "startLine": 28,
+            "endLine": 28
+          }
+        },
+        {
+          "id": "Session.invalidate:method",
+          "name": "invalidate",
+          "qualifiedName": "Session.invalidate",
+          "kind": "method",
+          "language": "python",
+          "startLine": 30,
+          "endLine": 31,
+          "signature": "def invalidate(self) -> None",
+          "exported": true,
+          "body": {
+            "startLine": 31,
+            "endLine": 31
+          }
+        },
+        {
+          "id": "Session.remaining_seconds:method",
+          "name": "remaining_seconds",
+          "qualifiedName": "Session.remaining_seconds",
+          "kind": "method",
+          "language": "python",
+          "startLine": 33,
+          "endLine": 36,
+          "signature": "def remaining_seconds(self) -> int",
+          "exported": true,
+          "body": {
+            "startLine": 34,
+            "endLine": 36
+          }
+        }
+      ]
+    },
+    {
+      "id": "AuthenticationService:class",
+      "name": "AuthenticationService",
+      "qualifiedName": "AuthenticationService",
+      "kind": "class",
+      "language": "python",
+      "startLine": 39,
+      "endLine": 104,
+      "signature": "class AuthenticationService",
+      "exported": true,
+      "docstring": "Provides sample account authentication operations.",
+      "body": {
+        "startLine": 41,
+        "endLine": 104
+      },
+      "children": [
+        {
+          "id": "AuthenticationService.__init__:method",
+          "name": "__init__",
+          "qualifiedName": "AuthenticationService.__init__",
+          "kind": "method",
+          "language": "python",
+          "startLine": 42,
+          "endLine": 46,
+          "signature": "def __init__(self)",
+          "exported": true,
+          "body": {
+            "startLine": 43,
+            "endLine": 46
+          }
+        },
+        {
+          "id": "AuthenticationService.register:method",
+          "name": "register",
+          "qualifiedName": "AuthenticationService.register",
+          "kind": "method",
+          "language": "python",
+          "startLine": 48,
+          "endLine": 70,
+          "signature": "def register(self, username: str, email: str, password: str) -> User",
+          "exported": true,
+          "body": {
+            "startLine": 49,
+            "endLine": 70
+          }
+        },
+        {
+          "id": "AuthenticationService.authenticate:method",
+          "name": "authenticate",
+          "qualifiedName": "AuthenticationService.authenticate",
+          "kind": "method",
+          "language": "python",
+          "startLine": 72,
+          "endLine": 90,
+          "signature": "def authenticate(self, username: str, password: str) -> Session",
+          "exported": true,
+          "body": {
+            "startLine": 73,
+            "endLine": 90
+          }
+        },
+        {
+          "id": "AuthenticationService.logout:method",
+          "name": "logout",
+          "qualifiedName": "AuthenticationService.logout",
+          "kind": "method",
+          "language": "python",
+          "startLine": 92,
+          "endLine": 97,
+          "signature": "def logout(self, session_id: str) -> bool",
+          "exported": true,
+          "body": {
+            "startLine": 93,
+            "endLine": 97
+          }
+        },
+        {
+          "id": "AuthenticationService.find_session:method",
+          "name": "find_session",
+          "qualifiedName": "AuthenticationService.find_session",
+          "kind": "method",
+          "language": "python",
+          "startLine": 99,
+          "endLine": 101,
+          "signature": "def find_session(self, session_id: str) -> Optional[Session]",
+          "exported": true,
+          "body": {
+            "startLine": 100,
+            "endLine": 101
+          }
+        },
+        {
+          "id": "AuthenticationService.active_session_count:method",
+          "name": "active_session_count",
+          "qualifiedName": "AuthenticationService.active_session_count",
+          "kind": "method",
+          "language": "python",
+          "startLine": 103,
+          "endLine": 104,
+          "signature": "def active_session_count(self) -> int",
+          "exported": true,
+          "body": {
+            "startLine": 104,
+            "endLine": 104
+          }
+        }
+      ]
+    }
+  ]
+}

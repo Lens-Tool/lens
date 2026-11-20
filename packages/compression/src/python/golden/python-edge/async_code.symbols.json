@@ -1,0 +1,87 @@
+{
+  "fixture": "fixtures/python-edge/async_code.py",
+  "symbols": [
+    {
+      "id": "asyncio:import",
+      "name": "asyncio",
+      "qualifiedName": "asyncio",
+      "kind": "import",
+      "language": "python",
+      "startLine": 1,
+      "endLine": 1,
+      "signature": "import asyncio",
+      "exported": false
+    },
+    {
+      "id": "typing:import",
+      "name": "typing",
+      "qualifiedName": "typing",
+      "kind": "import",
+      "language": "python",
+      "startLine": 2,
+      "endLine": 2,
+      "signature": "from typing import Any",
+      "exported": false
+    },
+    {
+      "id": "fetch_user:function",
+      "name": "fetch_user",
+      "qualifiedName": "fetch_user",
+      "kind": "function",
+      "language": "python",
+      "startLine": 5,
+      "endLine": 12,
+      "signature": "async def fetch_user(user_id: int) -> dict[str, Any]",
+      "exported": true,
+      "body": {
+        "startLine": 6,
+        "endLine": 12
+      }
+    },
+    {
+      "id": "fetch_multiple_users:function",
+      "name": "fetch_multiple_users",
+      "qualifiedName": "fetch_multiple_users",
+      "kind": "function",
+      "language": "python",
+      "startLine": 15,
+      "endLine": 17,
+      "signature": "async def fetch_multiple_users(user_ids: list[int]) -> list[dict[str, Any]]",
+      "exported": true,
+      "body": {
+        "startLine": 16,
+        "endLine": 17
+      }
+    },
+    {
+      "id": "process_user:function",
+      "name": "process_user",
+      "qualifiedName": "process_user",
+      "kind": "function",
+      "language": "python",
+      "startLine": 20,
+      "endLine": 26,
+      "signature": "async def process_user(user_id: int) -> str",
+      "exported": true,
+      "body": {
+        "startLine": 21,
+        "endLine": 26
+      }
+    },
+    {
+      "id": "main:function",
+      "name": "main",
+      "qualifiedName": "main",
+      "kind": "function",
+      "language": "python",
+      "startLine": 29,
+      "endLine": 36,
+      "signature": "async def main() -> None",
+      "exported": true,
+      "body": {
+        "startLine": 30,
+        "endLine": 36
+      }
+    }
+  ]
+}
