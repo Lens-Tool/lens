@@ -1,0 +1,68 @@
+{
+  "fixture": "fixtures/python-edge/tabs.py",
+  "symbols": [
+    {
+      "id": "greet:function",
+      "name": "greet",
+      "qualifiedName": "greet",
+      "kind": "function",
+      "language": "python",
+      "startLine": 1,
+      "endLine": 4,
+      "signature": "def greet(name)",
+      "exported": true,
+      "docstring": "Indentation uses tabs, not spaces.",
+      "body": {
+        "startLine": 3,
+        "endLine": 4
+      }
+    },
+    {
+      "id": "Counter:class",
+      "name": "Counter",
+      "qualifiedName": "Counter",
+      "kind": "class",
+      "language": "python",
+      "startLine": 7,
+      "endLine": 13,
+      "signature": "class Counter",
+      "exported": true,
+      "body": {
+        "startLine": 8,
+        "endLine": 13
+      },
+      "children": [
+        {
+          "id": "Counter.__init__:method",
+          "name": "__init__",
+          "qualifiedName": "Counter.__init__",
+          "kind": "method",
+          "language": "python",
+          "startLine": 8,
+          "endLine": 9,
+          "signature": "def __init__(self)",
+          "exported": true,
+          "body": {
+            "startLine": 9,
+            "endLine": 9
+          }
+        },
+        {
+          "id": "Counter.bump:method",
+          "name": "bump",
+          "qualifiedName": "Counter.bump",
+          "kind": "method",
+          "language": "python",
+          "startLine": 11,
+          "endLine": 13,
+          "signature": "def bump(self)",
+          "exported": true,
+          "body": {
+            "startLine": 12,
+            "endLine": 13
+          }
+        }
+      ]
+    }
+  ]
+}

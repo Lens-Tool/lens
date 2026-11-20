@@ -1,0 +1,43 @@
+{
+  "fixture": "fixtures/python-edge/non_ascii.py",
+  "symbols": [
+    {
+      "id": "café:function",
+      "name": "café",
+      "qualifiedName": "café",
+      "kind": "function",
+      "language": "python",
+      "startLine": 2,
+      "endLine": 4,
+      "signature": "def café(naïve: str) -> str",
+      "exported": true,
+      "docstring": "Returns a greeting with accented characters: café, naïve, 日本語.",
+      "body": {
+        "startLine": 4,
+        "endLine": 4
+      }
+    },
+    {
+      "id": "PI_APPROX:variable",
+      "name": "PI_APPROX",
+      "qualifiedName": "PI_APPROX",
+      "kind": "variable",
+      "language": "python",
+      "startLine": 7,
+      "endLine": 7,
+      "signature": "PI_APPROX = \"π ≈ 3.14159\"",
+      "exported": true
+    },
+    {
+      "id": "EMOJI_OK:variable",
+      "name": "EMOJI_OK",
+      "qualifiedName": "EMOJI_OK",
+      "kind": "variable",
+      "language": "python",
+      "startLine": 8,
+      "endLine": 8,
+      "signature": "EMOJI_OK = \"✅\"",
+      "exported": true
+    }
+  ]
+}
