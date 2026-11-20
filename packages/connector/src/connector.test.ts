@@ -1,6 +1,8 @@
-import { readFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { parseUsageEvent } from '@lens/shared';
 import { readFileCompressed } from './readFileCompressed.js';
 
@@ -116,4 +118,91 @@ describe('readFileCompressed levels', () => {
       expect(JSON.stringify(event)).not.toContain('services');
     },
   );
+});
+
+describe('signatures fallback keeps code visible and stdout clean', () => {
+  const marker = /^\s*\.\.\. # L\d+-\d+$/m;
+  let dir: string;
+
+  beforeAll(() => {
+    dir = mkdtempSync(join(tmpdir(), 'lens-s2-08-'));
+  });
+
+  afterAll(() => {
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  const validFunction = [
+    'def greet(name):',
+    '    message = "hello " + name',
+    '    print(message)',
+    '    result = message.upper()',
+    '    print(result)',
+    '    return result',
+    '',
+  ].join('\n');
+
+  // A valid, collapsible function followed by a broken one.
+  const brokenSource = `${validFunction}\n\ndef broken(:\n    pass\n`;
+
+  const write = (name: string, text: string): string => {
+    const path = join(dir, name);
+    writeFileSync(path, text, 'utf8');
+    return path;
+  };
+
+  function spyOnOutput() {
+    return {
+      stdout: vi.spyOn(process.stdout, 'write').mockImplementation(() => true),
+      log: vi.spyOn(console, 'log').mockImplementation(() => undefined),
+      info: vi.spyOn(console, 'info').mockImplementation(() => undefined),
+      error: vi.spyOn(console, 'error').mockImplementation(() => undefined),
+    };
+  }
+
+  function expectWarningOnStderrOnly(spies: ReturnType<typeof spyOnOutput>, secret: string) {
+    // stdout is reserved for the MCP protocol: nothing may be written there.
+    expect(spies.stdout).not.toHaveBeenCalled();
+    expect(spies.log).not.toHaveBeenCalled();
+    expect(spies.info).not.toHaveBeenCalled();
+    // The warning goes to stderr, and it contains no path or user name.
+    expect(spies.error).toHaveBeenCalledTimes(1);
+    const warning = String(spies.error.mock.calls[0]?.[0]);
+    expect(warning).toMatch(/\[lens\]/);
+    expect(warning).not.toContain(dir);
+    expect(warning).not.toContain(secret);
+  }
+
+  it('the valid function alone is collapsed (so the next test is meaningful)', async () => {
+    const path = write('valid.py', validFunction);
+    const result = await readFileCompressed(path, deps, 'signatures');
+    expect(result.content).toMatch(marker);
+  });
+
+  it('returns a file with a valid function and a syntax error unchanged', async () => {
+    const path = write('half_broken.py', brokenSource);
+    const spies = spyOnOutput();
+    const result = await readFileCompressed(path, deps, 'signatures');
+    expect(result.content).toBe(brokenSource);
+    expect(result.content).not.toMatch(marker);
+    expect(result.tokensAfter).toBe(result.tokensBefore);
+    expectWarningOnStderrOnly(spies, 'half_broken');
+  });
+
+  it('writes the parser-failure warning to stderr only, without path or user name', async () => {
+    const path = write('crash.py', validFunction);
+    const broken = {
+      parse: () => {
+        throw new Error('parser crashed in /home/someone/lens');
+      },
+    };
+    const spies = spyOnOutput();
+    const result = await readFileCompressed(path, { ...deps, parser: broken }, 'signatures');
+    expect(result.content).toBe(validFunction);
+    expectWarningOnStderrOnly(spies, 'someone');
+  });
 });
