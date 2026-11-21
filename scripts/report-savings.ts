@@ -7,13 +7,13 @@ import {
   extractPythonSymbolsFromSource,
   renderSignatures,
 } from '@lens/compression';
-import { ApproxTokenCounter, type SymbolNode } from '@lens/shared';
+import { TiktokenCounter, type SymbolNode } from '@lens/shared';
 
 // Token savings of each compression level on the Python sample repo (task S2-11).
 //
 // The "signatures" level uses the real renderer (`renderSignatures`, task S2-06), once with the
-// long marker and once with the short one. The token counter is still the rough approximation:
-// switch to the tiktoken counter (S2-10) when it is merged, then regenerate the document.
+// long marker and once with the short one. Tokens are counted with the real tokenizer
+// (`TiktokenCounter`, task S2-10).
 //
 // Usage:  npm run report:savings          print the tables
 //         npm run report:savings:write    also regenerate docs/research/python-savings.md
@@ -33,7 +33,7 @@ const root = join(repoRoot, 'fixtures', 'python-repo');
 const docPath = join(repoRoot, 'docs', 'research', 'python-savings.md');
 const shouldWrite = process.argv.includes('--write');
 const skipDirs = new Set(['__pycache__', '.git', 'node_modules', '.venv']);
-const counter = new ApproxTokenCounter();
+const counter = new TiktokenCounter();
 
 function walk(dir: string): string[] {
   const out: string[] = [];
@@ -141,7 +141,7 @@ if (shouldWrite) {
     '# Python fixture token savings',
     '',
     `Date: ${date}`,
-    `Token counter: ${counter.name} (rough estimate, about 4 characters per token; not a real tokenizer)`,
+    `Token counter: js-tiktoken (${counter.name})`,
     `Fixture: fixtures/python-repo (${rows.length} files)`,
     '',
     'Levels compared: raw (original source), light (`compressLight`: comments and blank lines removed), and signatures (`renderSignatures`: function and method bodies replaced by one marker line each; imports, variables, class and function headers, and docstrings kept). Percentages are tokens saved relative to raw. The signatures level is shown with both marker styles the renderer supports.',
@@ -162,7 +162,7 @@ if (shouldWrite) {
     '',
     '## What we do not know yet',
     '',
-    '- These numbers measure size only, and they use an approximate counter, so absolute values will change once the real tokenizer (S2-10) is integrated. Re-run `npm run report:savings:write` then.',
+    '- These numbers measure size with a real tokenizer (js-tiktoken), but they are not a model-specific usage measurement: other models tokenize differently.',
     '- Every `expand_symbol` call the agent makes adds tokens back, so the net saving per task is lower than the saving per file. That needs the evaluation.',
     '- We have not yet measured how each level affects answer quality: whether an agent given light or signatures-only context answers questions about the code as accurately as with the raw source, and which kinds of questions break first when bodies are omitted.',
     '- The team has not yet chosen the final marker format. The renderer defaults to the long one; the short one saves more tokens but the agent must be told what it means.',
