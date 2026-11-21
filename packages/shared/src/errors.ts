@@ -1,6 +1,7 @@
 export type LensErrorCode =
   | 'UNSUPPORTED_LANGUAGE'
   | 'FILE_NOT_FOUND'
+  | 'NOT_FOUND'
   | 'INVALID_INPUT'
   | 'PRIVACY_VIOLATION'
   | 'NOT_IMPLEMENTED'
