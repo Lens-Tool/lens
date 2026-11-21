@@ -118,7 +118,11 @@ export async function expandSymbol(
   }
 
   const relativeReal = path.relative(realRoot, realPath);
-  if (relativeReal === '..' || relativeReal.startsWith('..' + path.sep) || path.isAbsolute(relativeReal)) {
+  if (
+    relativeReal === '..' ||
+    relativeReal.startsWith('..' + path.sep) ||
+    path.isAbsolute(relativeReal)
+  ) {
     throw new LensError('INVALID_INPUT', 'Path must be inside the repository root.');
   }
 

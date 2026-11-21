@@ -63,16 +63,26 @@ export function createServer(options: ServerOptions): McpServer {
     EXPAND_SYMBOL_DESCRIPTION,
     {
       path: z.string().describe('Absolute path of the file containing the symbol.'),
-      symbol: z.string().describe('Symbol name (e.g., "greet") or qualified name (e.g., "UserService.create_account").'),
+      symbol: z
+        .string()
+        .describe(
+          'Symbol name (e.g., "greet") or qualified name (e.g., "UserService.create_account").',
+        ),
     },
     async ({ path, symbol }) => {
       try {
         const result = await expandSymbol(path, { ...options, repoRoot }, symbol);
         options.onEvent?.(result.event);
-        const text = result.matches.map((m) => `${m.qualifiedName} (${m.symbol.kind}) L${m.symbol.startLine}-${m.symbol.endLine}:\n${m.content}`).join('\n\n---\n\n');
+        const text = result.matches
+          .map(
+            (m) =>
+              `${m.qualifiedName} (${m.symbol.kind}) L${m.symbol.startLine}-${m.symbol.endLine}:\n${m.content}`,
+          )
+          .join('\n\n---\n\n');
         return { content: [{ type: 'text' as const, text }] };
       } catch (error) {
-        const lens = error instanceof LensError ? error : new LensError('INTERNAL', 'Unexpected error.');
+        const lens =
+          error instanceof LensError ? error : new LensError('INTERNAL', 'Unexpected error.');
         return {
           isError: true,
           content: [{ type: 'text' as const, text: `${lens.code}: ${lens.message}` }],

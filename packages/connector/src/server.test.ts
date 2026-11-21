@@ -269,12 +269,8 @@ describe('expand_symbol tool (MCP protocol)', () => {
     const output = text(result);
     // Parse the header line to get startLine
     const headerMatch = output.match(/^greet \(function\) L(\d+)-(\d+):/);
-    expect(headerMatch).not.toBeNull();
-    if (headerMatch) {
-      const startLine = parseInt(headerMatch[1], 10);
-      // greet is at line 21 in decorators.py (the @repeat line)
-      expect(startLine).toBe(21);
-    }
+    // greet starts at line 21 in decorators.py (the @repeat line)
+    expect(headerMatch?.[1]).toBe('21');
     // Content should start with the decorator
     const content = output.split('\n').slice(1).join('\n');
     expect(content.trimStart()).toMatch(/^@repeat/);
