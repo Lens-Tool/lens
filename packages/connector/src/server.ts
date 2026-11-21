@@ -2,10 +2,12 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { LensError, type UsageEvent } from '@lens/shared';
 import { z } from 'zod';
 import { readFileCompressed } from './readFileCompressed.js';
+import { expandSymbol } from './expandSymbol.js';
 
 export interface ServerOptions {
   projectId: string;
   sessionId: string;
+  repoRoot?: string;
   onEvent?: (event: UsageEvent) => void;
 }
 
@@ -16,7 +18,7 @@ const TOOL_DESCRIPTION = [
   '"signatures" (Python files only) keeps imports, variables, class and function headers and docstrings,',
   'and replaces long function and method bodies with a marker line such as "... # L8-11" (the original line range);',
   '"raw" returns the file unchanged.',
-  'To see a body that a marker replaced, read the file again with level "raw".',
+  'To see a body that a marker replaced, use expand_symbol(path, symbol).',
   'A file that cannot be parsed is returned unchanged.',
 ].join(' ');
 
@@ -25,6 +27,7 @@ const LEVEL_DESCRIPTION =
 
 export function createServer(options: ServerOptions): McpServer {
   const server = new McpServer({ name: 'lens', version: '0.0.0' });
+  const repoRoot = options.repoRoot ?? process.cwd();
 
   server.tool(
     'read_file_compressed',
@@ -41,6 +44,35 @@ export function createServer(options: ServerOptions): McpServer {
       } catch (error) {
         const lens =
           error instanceof LensError ? error : new LensError('INTERNAL', 'Unexpected error.');
+        return {
+          isError: true,
+          content: [{ type: 'text' as const, text: `${lens.code}: ${lens.message}` }],
+        };
+      }
+    },
+  );
+
+  const EXPAND_SYMBOL_DESCRIPTION = [
+    'Return the full source of a symbol (function, method, class) by name or qualified name.',
+    'Use to expand the "... # L8-11" markers from read_file_compressed signatures level.',
+    'Python files only for now.',
+  ].join(' ');
+
+  server.tool(
+    'expand_symbol',
+    EXPAND_SYMBOL_DESCRIPTION,
+    {
+      path: z.string().describe('Absolute path of the file containing the symbol.'),
+      symbol: z.string().describe('Symbol name (e.g., "greet") or qualified name (e.g., "UserService.create_account").'),
+    },
+    async ({ path, symbol }) => {
+      try {
+        const result = await expandSymbol(path, { ...options, repoRoot }, symbol);
+        options.onEvent?.(result.event);
+        const text = result.matches.map((m) => `${m.qualifiedName} (${m.symbol.kind}) L${m.symbol.startLine}-${m.symbol.endLine}:\n${m.content}`).join('\n\n---\n\n');
+        return { content: [{ type: 'text' as const, text }] };
+      } catch (error) {
+        const lens = error instanceof LensError ? error : new LensError('INTERNAL', 'Unexpected error.');
         return {
           isError: true,
           content: [{ type: 'text' as const, text: `${lens.code}: ${lens.message}` }],
