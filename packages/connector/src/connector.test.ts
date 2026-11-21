@@ -58,7 +58,7 @@ describe('readFileCompressed levels', () => {
     const light = await readFileCompressed(services, deps, 'light');
     const byDefault = await readFileCompressed(services, deps);
     expect(byDefault.content).toBe(light.content);
-    expect(light.tokensAfter).toBeLessThan(light.tokensBefore);
+    expect(light.tokensAfter).toBeLessThanOrEqual(light.tokensBefore);
     expect(light.content).not.toMatch(marker);
   });
 

@@ -9,11 +9,11 @@ import {
   type CodeParser,
 } from '@lens/compression';
 import {
-  ApproxTokenCounter,
   LensError,
   type CompressionLevel,
   type Language,
   type TokenCounter,
+  TiktokenCounter,
   type UsageEvent,
 } from '@lens/shared';
 
@@ -101,7 +101,7 @@ export async function readFileCompressed(
   deps: ReadFileCompressedDeps,
   level: CompressionLevel = 'light',
 ): Promise<ReadFileCompressedResult> {
-  const counter = deps.counter ?? new ApproxTokenCounter();
+  const counter = deps.counter ?? new TiktokenCounter();
   const now = deps.now ?? (() => new Date());
   const started = performance.now();
 
