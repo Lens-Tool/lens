@@ -76,6 +76,7 @@ function countTriple(line: string): number {
   return (line.match(/"""|'''/g) ?? []).length;
 }
 
+export { TiktokenCounter, getDefaultTokenCounter } from './tokens.js';
 export * from './parser/index.js';
 export * from './python/extract.js';
 export * from './python/renderSignatures.js';
