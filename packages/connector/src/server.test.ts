@@ -404,6 +404,45 @@ describe('expand_symbol tool (temporary project folders)', () => {
     expect(text(result)).not.toContain('TOP SECRET');
   });
 
+  it('accepts a file reached through a symlinked or junctioned project folder', async (ctx) => {
+    const link = join(outside, 'project-link');
+    try {
+      await symlink(root, link, 'junction');
+    } catch {
+      ctx.skip(); // no right to create links on this machine
+    }
+    await writeFile(join(root, 'a.py'), 'def f():\n    return 1\n', 'utf8');
+    const server = createServer({
+      projectId: 'proj_test0002',
+      sessionId: 'sess_test0002',
+      repoRoot: link,
+    });
+    const [clientSide, serverSide] = InMemoryTransport.createLinkedPair();
+    const viaLink = new Client({ name: 'test', version: '0.0.0' });
+    await Promise.all([server.connect(serverSide), viaLink.connect(clientSide)]);
+    try {
+      const result = await viaLink.callTool({
+        name: 'expand_symbol',
+        arguments: { path: join(link, 'a.py'), symbol: 'f' },
+      });
+      expect(result.isError).toBeFalsy();
+      expect(text(result)).toBe('f (function) L1-2:\ndef f():\n    return 1');
+    } finally {
+      await viaLink.close();
+    }
+  });
+
+  it('rejects the parent folder of the project and a sibling folder with a similar name', async () => {
+    for (const path of [join(root, '..'), `${root}-sibling/a.py`]) {
+      const result = await client.callTool({
+        name: 'expand_symbol',
+        arguments: { path, symbol: 'f' },
+      });
+      expect(result.isError).toBe(true);
+      expect(text(result)).toMatch(/^INVALID_INPUT: /);
+    }
+  });
+
   it('does not put the file path or the project folder in any error message', async () => {
     const file = join(root, 'a.py');
     await writeFile(file, 'def f():\n    pass\n', 'utf8');

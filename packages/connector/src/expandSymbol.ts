@@ -84,6 +84,12 @@ function buildSymbolRef(sym: SymbolNode): SymbolRef {
   };
 }
 
+/** True when `target` is `root` or lies below it (both already absolute). */
+function isInside(root: string, target: string): boolean {
+  const relative = path.relative(root, target);
+  return relative !== '..' && !relative.startsWith('..' + path.sep) && !path.isAbsolute(relative);
+}
+
 export async function expandSymbol(
   inputPath: string,
   deps: ExpandSymbolDeps,
@@ -94,15 +100,18 @@ export async function expandSymbol(
   const started = performance.now();
 
   // 1. Validate path is inside repo root (with symlink resolution)
-  // First resolve inputPath against repoRoot if it's relative
+  // The root may be written in a form that realpath() changes: a symlink or junction, a Windows 8.3
+  // short name (RUNNER~1) or macOS /var -> /private/var. A path under the root as the caller wrote it
+  // must still be accepted, so the cheap lexical check accepts either form of the root. The real
+  // security check is the second one, after realpath, where both sides are fully resolved.
+  const rawRoot = path.resolve(deps.repoRoot);
   const realRoot = await realpath(deps.repoRoot);
   const resolvedInputPath = path.isAbsolute(inputPath)
-    ? inputPath
-    : path.resolve(realRoot, inputPath);
+    ? path.resolve(inputPath)
+    : path.resolve(rawRoot, inputPath);
 
   // Check path traversal before realpath (which fails on non-existent paths)
-  const relative = path.relative(realRoot, resolvedInputPath);
-  if (relative === '..' || relative.startsWith('..' + path.sep) || path.isAbsolute(relative)) {
+  if (!isInside(rawRoot, resolvedInputPath) && !isInside(realRoot, resolvedInputPath)) {
     throw new LensError('INVALID_INPUT', 'Path must be inside the repository root.');
   }
 
@@ -117,12 +126,7 @@ export async function expandSymbol(
     throw new LensError('INTERNAL', 'The file could not be read.');
   }
 
-  const relativeReal = path.relative(realRoot, realPath);
-  if (
-    relativeReal === '..' ||
-    relativeReal.startsWith('..' + path.sep) ||
-    path.isAbsolute(relativeReal)
-  ) {
+  if (!isInside(realRoot, realPath)) {
     throw new LensError('INVALID_INPUT', 'Path must be inside the repository root.');
   }
 
