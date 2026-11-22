@@ -1,5 +1,5 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { LensError, type UsageEvent } from '@lens/shared';
+import { LensError, type ExpandSymbolInput, type UsageEvent } from '@lens/shared';
 import { z } from 'zod';
 import { readFileCompressed } from './readFileCompressed.js';
 import { expandSymbol } from './expandSymbol.js';
@@ -55,6 +55,7 @@ export function createServer(options: ServerOptions): McpServer {
   const EXPAND_SYMBOL_DESCRIPTION = [
     'Return the full source of a symbol (function, method, class) by name or qualified name.',
     'Use to expand the "... # L8-11" markers from read_file_compressed signatures level.',
+    'Top-level functions, classes and their methods are indexed; a nested function is part of the source of its parent.',
     'Python files only for now.',
   ].join(' ');
 
@@ -71,7 +72,8 @@ export function createServer(options: ServerOptions): McpServer {
     },
     async ({ path, symbol }) => {
       try {
-        const result = await expandSymbol(path, { ...options, repoRoot }, symbol);
+        const input: ExpandSymbolInput = { path, symbol };
+        const result = await expandSymbol(input.path, { ...options, repoRoot }, input.symbol);
         options.onEvent?.(result.event);
         const text = result.matches
           .map(

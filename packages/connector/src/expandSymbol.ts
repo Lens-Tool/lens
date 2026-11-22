@@ -146,21 +146,23 @@ export async function expandSymbol(
     throw new LensError('INTERNAL', 'The file could not be read.');
   }
 
-  // 3. Extract symbols
+  // 4. Extract symbols
   const parser = deps.parser ?? (await getParser());
   const symbols: SymbolNode[] = await withParsedFile(parser, source, 'python', (file) =>
     extractPythonSymbols(file.root, source),
   );
 
-  // 4. Find matches (exact match on name or qualifiedName)
+  // 5. Find matches (exact match on name or qualifiedName)
   const matches = findMatchingSymbols(symbols, symbol);
 
   if (matches.length === 0) {
     throw new LensError(SYMBOL_NOT_FOUND_CODE, SYMBOL_NOT_FOUND_MSG(symbol));
   }
 
-  // 5. Build results with source content
-  const sourceLines = source.split('\n');
+  // 6. Build results with source content. Split on \n or \r\n and join with the file's own line
+  // ending: a CRLF file gives CRLF between lines and no stray \r at the end of the symbol.
+  const eol = source.includes('\r\n') ? '\r\n' : '\n';
+  const sourceLines = source.split(/\r?\n/);
   const results: ExpandSymbolResultWithQualifiedName[] = [];
 
   for (const match of matches) {
@@ -171,7 +173,7 @@ export async function expandSymbol(
     const contentLines = sourceLines.slice(startIdx, endIdx);
 
     // TODO(redaction): Apply secrets redaction before returning content
-    const content = contentLines.join('\n');
+    const content = contentLines.join(eol);
 
     results.push({
       symbol: buildSymbolRef(match),
@@ -181,7 +183,7 @@ export async function expandSymbol(
     });
   }
 
-  // 6. Compute token counts and build event
+  // 7. Compute token counts and build event
   const tokensBefore = counter.count(source);
   const tokensAfter = counter.count(results.map((r) => r.content).join('\n'));
 

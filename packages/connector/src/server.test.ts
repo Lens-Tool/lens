@@ -1,12 +1,12 @@
 import { fileURLToPath } from 'node:url';
 import { tmpdir } from 'node:os';
-import { mkdtemp, writeFile, rm } from 'node:fs/promises';
+import { join } from 'node:path';
+import { mkdtemp, writeFile, rm, symlink } from 'node:fs/promises';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import type { UsageEvent } from '@lens/shared';
+import { parseUsageEvent, type UsageEvent } from '@lens/shared';
 import { createServer } from './server.js';
-import { SYMBOL_NOT_FOUND_CODE } from './expandSymbol.js';
 
 const fixture = (name: string) =>
   fileURLToPath(new URL(`../../../fixtures/${name}`, import.meta.url));
@@ -147,7 +147,7 @@ describe('expand_symbol tool (MCP protocol)', () => {
     expect(content.trimStart()).toMatch(/^@repeat/);
   });
 
-  it('returns a decorated function by qualified name', async () => {
+  it('returns a decorated module-level function by its name', async () => {
     const result = await client.callTool({
       name: 'expand_symbol',
       arguments: { path: fixture('python-edge/decorators.py'), symbol: 'calculate_total' },
@@ -167,7 +167,8 @@ describe('expand_symbol tool (MCP protocol)', () => {
     });
     expect(result.isError).toBe(true);
     const output = text(result);
-    expect(output).toMatch(new RegExp(`^${SYMBOL_NOT_FOUND_CODE}: `));
+    // TODO(NOT_FOUND): expect 'NOT_FOUND' here once the code exists in shared (PR #27).
+    expect(output).toMatch(/^INVALID_INPUT: /);
     expect(output).toContain('Symbol not found: NonExistent');
     expect(events).toHaveLength(0);
   });
@@ -276,5 +277,148 @@ describe('expand_symbol tool (MCP protocol)', () => {
     expect(content.trimStart()).toMatch(/^@repeat/);
   });
 
+  it('returns the exact source and line range of a method', async () => {
+    const result = await client.callTool({
+      name: 'expand_symbol',
+      arguments: { path: fixture('python-repo/services.py'), symbol: 'UserService.create_account' },
+    });
+    expect(result.isError).toBeFalsy();
+    expect(text(result)).toBe(
+      [
+        'UserService.create_account (method) L20-24:',
+        '    def create_account(self, username: str, email: str, password: str) -> User:',
+        '        user = self.authentication.register(username, email, password)',
+        '        self.profiles[user.user_id] = UserProfile(user_id=user.user_id)',
+        '        self._record_event("account_created", user.user_id)',
+        '        return user',
+      ].join('\n'),
+    );
+  });
+
+  it('returns the exact source of a decorated function, decorator line included', async () => {
+    const result = await client.callTool({
+      name: 'expand_symbol',
+      arguments: { path: fixture('python-edge/decorators.py'), symbol: 'greet' },
+    });
+    expect(result.isError).toBeFalsy();
+    expect(text(result)).toBe(
+      [
+        'greet (function) L21-23:',
+        '@repeat(times=3)',
+        'def greet(name: str) -> str:',
+        '    return f"Hello, {name}"',
+      ].join('\n'),
+    );
+  });
+
+  it('gives every ambiguous match its own line range, in file order', async () => {
+    const result = await client.callTool({
+      name: 'expand_symbol',
+      arguments: { path: fixture('python-edge/nested_classes.py'), symbol: '__init__' },
+    });
+    const headers = text(result)
+      .split('\n\n---\n\n')
+      .map((match) => /^([\w.]+) \(method\) L(\d+)-(\d+):\n/.exec(match));
+    expect(headers).toHaveLength(5);
+    const starts = headers.map((h) => Number(h?.[2]));
+    expect(new Set(starts).size).toBe(5);
+    expect(starts).toEqual([...starts].sort((a, b) => a - b));
+    for (const h of headers) expect(Number(h?.[3])).toBeGreaterThanOrEqual(Number(h?.[2]));
+  });
+
+  it('emits exactly one valid usage event on success, with no path or code in it', async () => {
+    const path = fixture('python-edge/decorators.py');
+    const result = await client.callTool({
+      name: 'expand_symbol',
+      arguments: { path, symbol: 'greet' },
+    });
+    expect(result.isError).toBeFalsy();
+    expect(events).toHaveLength(1);
+    const [event] = events;
+    expect(event?.tool).toBe('expand_symbol');
+    expect(event?.tokensAfter).toBeGreaterThan(0);
+    expect(event?.tokensAfter).toBeLessThan(event?.tokensBefore ?? 0);
+    // parseUsageEvent is the allow-list: it throws on any extra field.
+    expect(() => parseUsageEvent(event)).not.toThrow();
+    const serialized = JSON.stringify(event);
+    expect(serialized).not.toContain('decorators');
+    expect(serialized).not.toContain('greet');
+  });
+
   it.todo('applies secrets redaction to expanded symbol content');
+});
+
+// These tests need files that do not exist in fixtures/, so they build a temporary project folder.
+describe('expand_symbol tool (temporary project folders)', () => {
+  let client: Client;
+  let root: string;
+  let outside: string;
+
+  beforeEach(async () => {
+    root = await mkdtemp(join(tmpdir(), 'lens-expand-root-'));
+    outside = await mkdtemp(join(tmpdir(), 'lens-expand-outside-'));
+    const server = createServer({
+      projectId: 'proj_test0001',
+      sessionId: 'sess_test0001',
+      repoRoot: root,
+    });
+    const [clientSide, serverSide] = InMemoryTransport.createLinkedPair();
+    client = new Client({ name: 'test', version: '0.0.0' });
+    await Promise.all([server.connect(serverSide), client.connect(clientSide)]);
+  });
+
+  afterEach(async () => {
+    await client.close();
+    await rm(root, { recursive: true, force: true });
+    await rm(outside, { recursive: true, force: true });
+  });
+
+  const text = (result: Awaited<ReturnType<Client['callTool']>>): string =>
+    (result.content as { type: string; text: string }[]).map((c) => c.text).join('\n');
+
+  it('keeps CRLF line endings between lines and adds no stray \\r at the end', async () => {
+    const file = join(root, 'win.py');
+    await writeFile(file, 'def f():\r\n    return 1\r\n\r\ndef g():\r\n    return 2\r\n', 'utf8');
+    const result = await client.callTool({
+      name: 'expand_symbol',
+      arguments: { path: file, symbol: 'f' },
+    });
+    expect(result.isError).toBeFalsy();
+    expect(text(result)).toBe('f (function) L1-2:\ndef f():\r\n    return 1');
+  });
+
+  it('rejects a symlink inside the project that points outside it', async (ctx) => {
+    const target = join(outside, 'secret.py');
+    await writeFile(target, 'def leak():\n    return "TOP SECRET"\n', 'utf8');
+    try {
+      await symlink(target, join(root, 'link.py'));
+    } catch {
+      ctx.skip(); // for example Windows without the right to create symlinks
+    }
+    const result = await client.callTool({
+      name: 'expand_symbol',
+      arguments: { path: join(root, 'link.py'), symbol: 'leak' },
+    });
+    expect(result.isError).toBe(true);
+    expect(text(result)).toMatch(/^INVALID_INPUT: /);
+    expect(text(result)).not.toContain('TOP SECRET');
+  });
+
+  it('does not put the file path or the project folder in any error message', async () => {
+    const file = join(root, 'a.py');
+    await writeFile(file, 'def f():\n    pass\n', 'utf8');
+    const missingSymbol = await client.callTool({
+      name: 'expand_symbol',
+      arguments: { path: file, symbol: 'nope' },
+    });
+    const missingFile = await client.callTool({
+      name: 'expand_symbol',
+      arguments: { path: join(root, 'missing.py'), symbol: 'f' },
+    });
+    for (const result of [missingSymbol, missingFile]) {
+      expect(result.isError).toBe(true);
+      expect(text(result)).not.toContain(root);
+      expect(text(result)).not.toContain('a.py');
+    }
+  });
 });
