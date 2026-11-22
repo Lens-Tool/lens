@@ -5,15 +5,15 @@ import {
   WasmParser,
   compressLight,
   extractPythonSymbolsFromSource,
+  getDefaultTokenCounter,
   renderSignatures,
 } from '@lens/compression';
-import { ApproxTokenCounter, type SymbolNode } from '@lens/shared';
+import { type SymbolNode } from '@lens/shared';
 
 // Token savings of each compression level on the Python sample repo (task S2-11).
 //
 // The "signatures" level uses the real renderer (`renderSignatures`, task S2-06), once with the
-// long marker and once with the short one. The token counter is still the rough approximation:
-// switch to the tiktoken counter (S2-10) when it is merged, then regenerate the document.
+// long marker and once with the short one. Uses the real tiktoken counter (S2-10).
 //
 // Usage:  npm run report:savings          print the tables
 //         npm run report:savings:write    also regenerate docs/research/python-savings.md
@@ -33,7 +33,8 @@ const root = join(repoRoot, 'fixtures', 'python-repo');
 const docPath = join(repoRoot, 'docs', 'research', 'python-savings.md');
 const shouldWrite = process.argv.includes('--write');
 const skipDirs = new Set(['__pycache__', '.git', 'node_modules', '.venv']);
-const counter = new ApproxTokenCounter();
+const counter = getDefaultTokenCounter();
+console.log(`Counter: ${counter.name}`);
 
 function walk(dir: string): string[] {
   const out: string[] = [];
@@ -120,6 +121,17 @@ const summary = [
 const extraPerBody =
   total.omitted > 0 ? ((total.long - total.short) / total.omitted).toFixed(1) : '0';
 
+function counterDescription(name: string): string {
+  switch (name) {
+    case 'tiktoken-cl100k_base':
+      return "BPE tokenizer for OpenAI's cl100k_base encoding; an estimate for Claude and other models, which tokenize differently";
+    case 'approx-chars-div-4':
+      return 'rough estimate, about 4 characters per token; not a real tokenizer';
+    default:
+      return name;
+  }
+}
+
 const findings = [
   `- The light level saves only ${saved(total.light, total.raw)}: comments and blank lines are a very small part of the tokens.`,
   `- Almost all the savings come from replacing function and method bodies, which is also the level that risks answer quality (not measured yet).`,
@@ -137,11 +149,12 @@ console.log(summary);
 
 if (shouldWrite) {
   const date = new Date().toISOString().slice(0, 10);
+
   const doc = [
     '# Python fixture token savings',
     '',
     `Date: ${date}`,
-    `Token counter: ${counter.name} (rough estimate, about 4 characters per token; not a real tokenizer)`,
+    `Token counter: ${counter.name} (${counterDescription(counter.name)})`,
     `Fixture: fixtures/python-repo (${rows.length} files)`,
     '',
     'Levels compared: raw (original source), light (`compressLight`: comments and blank lines removed), and signatures (`renderSignatures`: function and method bodies replaced by one marker line each; imports, variables, class and function headers, and docstrings kept). Percentages are tokens saved relative to raw. The signatures level is shown with both marker styles the renderer supports.',

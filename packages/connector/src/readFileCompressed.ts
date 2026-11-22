@@ -3,13 +3,13 @@ import {
   compressLight,
   detectLanguage,
   extractPythonSymbols,
+  getDefaultTokenCounter,
   renderSignatures,
   WasmParser,
   withParsedFile,
   type CodeParser,
 } from '@lens/compression';
 import {
-  ApproxTokenCounter,
   LensError,
   type CompressionLevel,
   type Language,
@@ -101,7 +101,7 @@ export async function readFileCompressed(
   deps: ReadFileCompressedDeps,
   level: CompressionLevel = 'light',
 ): Promise<ReadFileCompressedResult> {
-  const counter = deps.counter ?? new ApproxTokenCounter();
+  const counter = deps.counter ?? getDefaultTokenCounter();
   const now = deps.now ?? (() => new Date());
   const started = performance.now();
 
