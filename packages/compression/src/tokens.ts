@@ -1,21 +1,15 @@
+import { createRequire } from 'node:module';
 import type { TokenCounter } from '@lens/shared';
 import { ApproxTokenCounter } from '@lens/shared';
-import { Tiktoken } from 'js-tiktoken/lite';
-import cl100kBaseRanks from 'js-tiktoken/ranks/cl100k_base';
+import type { Tiktoken, TiktokenBPE } from 'js-tiktoken/lite';
 
-/**
- * Real Tiktoken-based token counter using the cl100k_base encoding.
- * Uses the lite entry point to avoid bundling all encodings.
- * Always calls encode(text, [], []) so special tokens like "<|endoftext|>"
- * are counted as plain text rather than throwing.
- *
- * Why cl100k_base: stable OpenAI encoding used by GPT-4/3.5-turbo; widely available
- * in pure-JS form; close estimates for non-OpenAI models (Claude, etc. tokenize differently).
- * No dispose/free needed: pure JS implementation, encoder is stateless after construction.
- */
+// js-tiktoken is loaded with a synchronous require inside the loader (not with a top-level
+// `import`) so that a missing or broken install is caught by the fallback below. A static
+// import would crash the whole package (and the MCP server) before the fallback could run.
+const nodeRequire = createRequire(import.meta.url);
 
 // Runs of one character class longer than RUN_T make js-tiktoken quadratic
-// (measured: 5,000 'x' ~4 s, 5,000 random letters ~11 s). They are counted from
+// (measured: 5,000 'x' ~2-4 s, 5,000 random letters ~11 s). They are counted from
 // a RUN_T-char sample, extrapolated. Text without such runs is counted exactly.
 const RUN_T = 128;
 const LONG_RUN = /\p{L}{129,}|\s{129,}|[^\s\p{L}\p{N}]{129,}/gu;
@@ -49,56 +43,45 @@ export class TiktokenCounter implements TokenCounter {
   }
 }
 
-// Lazy singleton state
-let defaultTokenCounter: TokenCounter | null = null;
-let tokenCounterLoader: (() => TiktokenCounter) | null = null;
+/** Loads js-tiktoken and builds the cl100k_base encoder. Throws if the library is unavailable. */
+export function loadCl100kEncoder(): Tiktoken {
+  const lite = nodeRequire('js-tiktoken/lite') as { Tiktoken: typeof Tiktoken };
+  const ranks = nodeRequire('js-tiktoken/ranks/cl100k_base') as TiktokenBPE;
+  return new lite.Tiktoken(ranks);
+}
 
 /**
- * Returns a process-wide singleton token counter.
- * First call: tries to load Tiktoken; on success returns TiktokenCounter.
- * On ANY failure: logs ONE fixed [lens] warning to stderr and returns ApproxTokenCounter.
- * Subsequent calls: return the cached instance (never switches mid-process).
- *
- * Fallback only covers the initial construction — once TiktokenCounter is created,
- * its encode() calls are assumed to succeed. If encode() ever throws at runtime,
- * the exception propagates (consistent with TokenCounter interface being sync/no-throw).
+ * Builds a TiktokenCounter. On ANY failure (library missing, ranks not loadable, encoder broken)
+ * it logs ONE fixed [lens] line to stderr and returns ApproxTokenCounter instead.
+ * The log never contains the error message, paths or input text (stdout is reserved for MCP).
+ * Fallback covers loading and construction only: once the counter exists, count() is not guarded.
  */
-export function getDefaultTokenCounter(): TokenCounter {
-  if (defaultTokenCounter !== null) {
-    return defaultTokenCounter;
-  }
-
+export function createTokenCounter(load: () => Tiktoken = loadCl100kEncoder): TokenCounter {
   try {
-    // Test-only hook: allow injecting a custom loader that can throw
-    if (tokenCounterLoader !== null) {
-      defaultTokenCounter = tokenCounterLoader();
-    } else {
-      const encoder = new Tiktoken(cl100kBaseRanks);
-      // Smoke test: ensure the encoder works for basic input
-      encoder.encode('hello world', [], []);
-      defaultTokenCounter = new TiktokenCounter(encoder);
-    }
+    const encoder = load();
+    // Smoke test: fail now, not on the first real call.
+    encoder.encode('hello world', [], []);
+    return new TiktokenCounter(encoder);
   } catch {
     console.error('[lens] tiktoken unavailable, using approximate token counter');
-    defaultTokenCounter = new ApproxTokenCounter();
+    return new ApproxTokenCounter();
   }
-
-  return defaultTokenCounter;
 }
 
 /**
- * TEST-ONLY: Reset the singleton so the next call re-initializes.
- * Not part of the public API.
+ * Returns a function that creates the counter on first use and then always returns the same
+ * instance (so the decision is made once per process and the counter's `name` stays truthful).
+ * Takes the loader as a parameter so tests need no hooks in production code.
  */
-export function resetTokenCounterForTest(): void {
-  defaultTokenCounter = null;
-  tokenCounterLoader = null;
+export function createCounterProvider(
+  load: () => Tiktoken = loadCl100kEncoder,
+): () => TokenCounter {
+  let cached: TokenCounter | null = null;
+  return () => {
+    cached ??= createTokenCounter(load);
+    return cached;
+  };
 }
 
-/**
- * TEST-ONLY: Inject a custom loader that can throw to test the fallback path.
- * Not part of the public API.
- */
-export function setTokenCounterLoaderForTest(loader: () => TiktokenCounter): void {
-  tokenCounterLoader = loader;
-}
+/** Process-wide default counter (lazy singleton). */
+export const getDefaultTokenCounter: () => TokenCounter = createCounterProvider();
