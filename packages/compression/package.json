@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@lens/shared": "*",
+    "js-tiktoken": "1.0.21",
     "web-tree-sitter": "0.22.6"
   }
 }

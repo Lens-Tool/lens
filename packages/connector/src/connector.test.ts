@@ -55,9 +55,11 @@ describe('readFileCompressed levels', () => {
   });
 
   it('light removes comments and blank lines, and is the default', async () => {
-    const light = await readFileCompressed(services, deps, 'light');
-    const byDefault = await readFileCompressed(services, deps);
+    const commented = fixture('python-repo/auth.py');
+    const light = await readFileCompressed(commented, deps, 'light');
+    const byDefault = await readFileCompressed(commented, deps);
     expect(byDefault.content).toBe(light.content);
+    expect(light.content.length).toBeLessThan(readFileSync(commented, 'utf8').length);
     expect(light.tokensAfter).toBeLessThan(light.tokensBefore);
     expect(light.content).not.toMatch(marker);
   });

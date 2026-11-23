@@ -4,12 +4,12 @@ import { performance } from 'node:perf_hooks';
 import {
   detectLanguage,
   extractPythonSymbols,
+  getDefaultTokenCounter,
   WasmParser,
   withParsedFile,
   type CodeParser,
 } from '@lens/compression';
 import {
-  ApproxTokenCounter,
   LensError,
   type ExpandSymbolResult,
   type Language,
@@ -95,7 +95,7 @@ export async function expandSymbol(
   deps: ExpandSymbolDeps,
   symbol: string,
 ): Promise<ExpandSymbolResultInternal> {
-  const counter = deps.counter ?? new ApproxTokenCounter();
+  const counter = deps.counter ?? getDefaultTokenCounter();
   const now = deps.now ?? (() => new Date());
   const started = performance.now();
 
