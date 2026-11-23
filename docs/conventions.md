@@ -7,7 +7,7 @@
 
 ## Definition of Done (task is finished)
 
-- Code merged to `main` through a reviewed PR with green CI.
+- Code merged to `develop` through a reviewed PR with green CI (`main` changes only through the end-of-sprint release PR; see `docs/branching-workflow.md`).
 - Tests cover the new behaviour (or the spike produced a written finding).
 - Docs/ADR updated if a contract, decision or setup step changed.
 - Evidence attached to the ClickUp task (PR link, doc link or short demo).
