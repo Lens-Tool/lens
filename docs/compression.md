@@ -178,36 +178,36 @@ def format_username(name: str) -> str:
 
 ```mermaid
 flowchart TD
-    A[Source .py] --> B{CodeParser.parse}
-    B --> C[ParsedFile]
-    C --> D{hasSyntaxError?}
-    D -- Yes --> E[Return raw + warning]
-    D -- No --> F[extractPythonSymbols]
-    F --> G[SymbolNode[]]
-    G --> H[renderSignatures]
-    H --> I{marker style}
-    I -- long --> J[Long marker output]
-    I -- short --> K[Short marker output]
-    J --> L[CompressResult{level: signatures}]
+    A["Source .py"] --> B["CodeParser.parse"]
+    B --> C["ParsedFile"]
+    C --> D{"hasSyntaxError?"}
+    D -- Yes --> E["Return raw + warning"]
+    D -- No --> F["extractPythonSymbols"]
+    F --> G["SymbolNode[]"]
+    G --> H["renderSignatures"]
+    H --> I{"marker style"}
+    I -- long --> J["Long marker output"]
+    I -- short --> K["Short marker output"]
+    J --> L["CompressResult (level: signatures)"]
     K --> L
-    L --> M[ParsedFile.dispose]
+    L --> M["ParsedFile.dispose"]
     E --> M
-    M --> N[Done]
+    M --> N["Done"]
 ```
 
 ## 8. Known Limits
 
-| Limit                     | Status                                                                                                                                                                                                                                                                                                                                                                                                           |
-| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Language support**      | Python only. JavaScript, TypeScript, and TSX are planned (grammars bundled per ADR 0009).                                                                                                                                                                                                                                                                                                                        |
-| **Body recovery**         | `expand_symbol` is **fully implemented** (`packages/connector/src/expandSymbol.ts`). It accepts a symbol name or qualified name, parses the file, finds matching symbols, and returns their full source content with token accounting. Agents recover bodies by calling `expand_symbol`.                                                                                                                         |
-| **Extractor gaps**        | Known and documented in `extract.ts`: nested functions/lambdas not extracted; defs inside `if`/`try`/`with` blocks skipped; multi-part docstrings (`"a" "b"`) not recognised; comments between header and first statement counted as body; `__all__` not read for export control; same-name siblings (getter/setter, `@overload`) all returned with unique `id` but same `qualifiedName`.                        |
-| **Secrets redaction**     | **Not implemented**. Secrets in a file pass through unchanged, both in the compressed output and in the full body returned by `expand_symbol` (see `TODO(redaction)` in `expandSymbol.ts`).                                                                                                                                                                                                                      |     |
-| **Token counting**        | Uses `cl100k_base` (OpenAI). Exact for normal text; extrapolated for long runs. Not billing-accurate for Claude or other models. See ADR 0010.                                                                                                                                                                                                                                                                   |
-| **Marker format**         | **Not final**. May change without notice. Agents must use `expand_symbol`, not parse markers.                                                                                                                                                                                                                                                                                                                    |
-| **Syntax errors**         | Compressor: on `hasSyntaxError`, returns `raw` unchanged (see §4). Extractor (direct use only): broken definitions inside an otherwise valid file are skipped (rest still extracted). Known bug: the extractor misparses some broken class definitions — a class can swallow `__init__` in its signature and lose a child method — which is why `python-edge/syntax_error.py` is excluded from the golden tests. |
-| **Output size guarantee** | Renderer never increases output size (marker must be shorter than body).                                                                                                                                                                                                                                                                                                                                         |
-| **EOL/BOM preservation**  | Renderer preserves original line endings (`\n` or `\r\n`).                                                                                                                                                                                                                                                                                                                                                       |
+| Limit                     | Status                                                                                                                                                                                                                                                                                                                                                                                    |
+| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Language support**      | Python only. JavaScript, TypeScript, and TSX are planned (grammars bundled per ADR 0009).                                                                                                                                                                                                                                                                                                 |
+| **Body recovery**         | `expand_symbol` is **fully implemented** (`packages/connector/src/expandSymbol.ts`). It accepts a symbol name or qualified name, parses the file, finds matching symbols, and returns their full source content with token accounting. Agents recover bodies by calling `expand_symbol`.                                                                                                  |
+| **Extractor gaps**        | Known and documented in `extract.ts`: nested functions/lambdas not extracted; defs inside `if`/`try`/`with` blocks skipped; multi-part docstrings (`"a" "b"`) not recognised; comments between header and first statement counted as body; `__all__` not read for export control; same-name siblings (getter/setter, `@overload`) all returned with unique `id` but same `qualifiedName`. |
+| **Secrets redaction**     | **Not implemented**. Secrets in a file pass through unchanged, both in the compressed output and in the full body returned by `expand_symbol` (see `TODO(redaction)` in `expandSymbol.ts`).                                                                                                                                                                                               |     |
+| **Token counting**        | Uses `cl100k_base` (OpenAI). Exact for normal text; extrapolated for long runs. Not billing-accurate for Claude or other models. See ADR 0010.                                                                                                                                                                                                                                            |
+| **Marker format**         | **Not final**. May change without notice. Agents must use `expand_symbol`, not parse markers.                                                                                                                                                                                                                                                                                             |
+| **Syntax errors**         | On `hasSyntaxError`, file returns `raw` unchanged. Broken definitions inside an otherwise valid file are skipped during extraction (rest still extracted).                                                                                                                                                                                                                                |
+| **Output size guarantee** | Renderer never increases output size (marker must be shorter than body).                                                                                                                                                                                                                                                                                                                  |
+| **EOL/BOM preservation**  | Renderer preserves original line endings (`\n` or `\r\n`).                                                                                                                                                                                                                                                                                                                                |
 
 ---
 
