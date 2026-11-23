@@ -1,7 +1,7 @@
 # ADR 0010: Token counter choice (js-tiktoken)
 
 Status: Proposed
-Owner: Amr Mohamed Abdelrahman | Technical reviewer: TBD | Date: 2026-11-22
+Owner: Amr Mohamed Abdelrahman | Technical reviewer: TBD (fill in before merge) | Date: 2026-11-22
 
 ## Context
 
@@ -29,11 +29,12 @@ Special tokens: Always call `encode(text, [], [])` so special tokens like `<|end
 ## Implementation
 
 - `packages/compression/src/tokens.ts`: `TiktokenCounter` implements `TokenCounter`; `getDefaultTokenCounter()` is a lazy process-wide singleton.
-  - First call: constructs encoder, runs smoke test `encode('hello world', [], [])`.
+  - js-tiktoken is loaded with a synchronous `createRequire` call inside the loader, not with a top-level `import`. A static import would make `@lens/compression` (and the MCP server) crash with `ERR_MODULE_NOT_FOUND` when the library is missing, before the fallback could run. A test checks that only `import type` is used.
+  - First call: loads the encoder and runs the smoke test `encode('hello world', [], [])`.
   - On success: caches and returns `TiktokenCounter` (`name = 'tiktoken-cl100k_base'`).
-  - On ANY failure: logs ONE fixed `[lens] tiktoken unavailable, using approximate token counter` to stderr, caches and returns `ApproxTokenCounter` (`name = 'approx-chars-div-4'`).
-  - Subsequent calls: return cached instance (never switches mid-process).
-  - Test-only helpers: `resetTokenCounterForTest()`, `setTokenCounterLoaderForTest()` for fallback testing.
+  - On ANY failure (library missing, ranks not loadable, encoder broken): logs ONE fixed `[lens] tiktoken unavailable, using approximate token counter` to stderr, caches and returns `ApproxTokenCounter` (`name = 'approx-chars-div-4'`). The error message is never logged (it can contain paths).
+  - Subsequent calls: return the cached instance (never switches mid-process).
+  - Testing needs no hooks in production code: `createTokenCounter(load)` and `createCounterProvider(load)` take the loader as a parameter.
 
 - Connector functions (`readFileCompressed`, `expandSymbol`): use `deps.counter ?? getDefaultTokenCounter()` (keep DI for tests).
 

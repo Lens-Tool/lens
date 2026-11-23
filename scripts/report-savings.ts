@@ -34,7 +34,6 @@ const docPath = join(repoRoot, 'docs', 'research', 'python-savings.md');
 const shouldWrite = process.argv.includes('--write');
 const skipDirs = new Set(['__pycache__', '.git', 'node_modules', '.venv']);
 const counter = getDefaultTokenCounter();
-console.log(`Counter: ${counter.name}`);
 
 function walk(dir: string): string[] {
   const out: string[] = [];
