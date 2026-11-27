@@ -1,7 +1,7 @@
 import pg from 'pg';
 import { Kysely, PostgresDialect, type Generated } from 'kysely';
 import type { UsageEvent } from '@lens/shared';
-import type { EventStore, StatsSummary } from './app.js';
+import { BASELINE_TOOLS, DELIVERED_TOOLS, type EventStore, type StatsSummary } from './app.js';
 import { requireDatabaseUrl } from './config.js';
 
 /** Mirrors migrations/001_init.sql. Only UsageEvent fields are stored: keep it that way. */
@@ -67,20 +67,30 @@ export class PostgresEventStore implements EventStore {
     return Number(row.total);
   }
 
+  /** Same definition as `summarize()` in app.ts: net of expand_symbol, see StatsSummary. */
   async summary(): Promise<StatsSummary> {
     const row = await this.db
       .selectFrom('usage_events')
       .select((eb) => [
         eb.fn.countAll<string>().as('events'),
-        eb.fn.sum<string | null>('tokens_before').as('before'),
-        eb.fn.sum<string | null>('tokens_after').as('after'),
+        eb.fn
+          .sum<string | null>('tokens_before')
+          .filterWhere('tool', 'in', [...BASELINE_TOOLS])
+          .as('before'),
+        eb.fn
+          .sum<string | null>('tokens_after')
+          .filterWhere('tool', 'in', [...DELIVERED_TOOLS])
+          .as('delivered'),
       ])
       .executeTakeFirstOrThrow();
 
+    const tokensBefore = Number(row.before ?? 0);
+    const tokensDelivered = Number(row.delivered ?? 0);
     return {
       events: Number(row.events),
-      tokensBefore: Number(row.before ?? 0),
-      tokensAfter: Number(row.after ?? 0),
+      tokensBefore,
+      tokensDelivered,
+      tokensSaved: tokensBefore - tokensDelivered,
     };
   }
 

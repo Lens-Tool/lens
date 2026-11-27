@@ -13,7 +13,7 @@ const event = {
   occurredAt: '2026-10-20T10:00:00.000Z',
 };
 
-const emptySummary = { events: 0, tokensBefore: 0, tokensAfter: 0 };
+const emptySummary = { events: 0, tokensBefore: 0, tokensDelivered: 0, tokensSaved: 0 };
 
 describe('stats-api', () => {
   it('reports health', async () => {
@@ -78,6 +78,33 @@ describe('stats-api', () => {
 
     const res = await request(app).get('/v1/stats/summary');
     expect(res.status).toBe(200);
-    expect(res.body).toEqual({ events: 2, tokensBefore: 1800, tokensAfter: 600 });
+    expect(res.body).toEqual({
+      events: 2,
+      tokensBefore: 1800,
+      tokensDelivered: 600,
+      tokensSaved: 1200,
+    });
+  });
+
+  // S2-19: an expand_symbol call adds tokens to the agent's context. It must reduce the net saving,
+  // never increase it. Numbers are from a real probe on a synthetic fixture (read then expand).
+  it('counts expand_symbol as tokens delivered, so the net saving can be negative', async () => {
+    const app = createApp(new InMemoryEventStore());
+    await request(app)
+      .post('/v1/events')
+      .send({ ...event, tool: 'read_file_compressed', tokensBefore: 930, tokensAfter: 498 })
+      .expect(202);
+    await request(app)
+      .post('/v1/events')
+      .send({ ...event, tool: 'expand_symbol', tokensBefore: 930, tokensAfter: 648 })
+      .expect(202);
+
+    const res = await request(app).get('/v1/stats/summary');
+    expect(res.body).toEqual({
+      events: 2,
+      tokensBefore: 930,
+      tokensDelivered: 1146,
+      tokensSaved: -216,
+    });
   });
 });

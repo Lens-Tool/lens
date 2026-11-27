@@ -1,10 +1,39 @@
 import express, { type ErrorRequestHandler, type Express } from 'express';
 import { LensError, parseUsageEvent, type UsageEvent } from '@lens/shared';
 
+/**
+ * Net savings, not per-file savings (S2-19). An `expand_symbol` event has tokensBefore = the whole
+ * file and tokensAfter = the symbol it returned, so adding it to a plain before/after sum would
+ * count tokens ADDED to the agent's context as savings. Instead:
+ * - tokensBefore: raw size of the files the agent asked to read (read_file_compressed events only);
+ * - tokensDelivered: everything the agent received (read_file_compressed + expand_symbol tokensAfter);
+ * - tokensSaved: tokensBefore - tokensDelivered. It can be negative.
+ * Assumes each expanded symbol belongs to a file that was also read through read_file_compressed.
+ * Counts are tokenizer estimates (cl100k_base by default), not billing figures.
+ */
 export interface StatsSummary {
   events: number;
   tokensBefore: number;
-  tokensAfter: number;
+  tokensDelivered: number;
+  tokensSaved: number;
+}
+
+export const BASELINE_TOOLS = ['read_file_compressed'] as const;
+export const DELIVERED_TOOLS = ['read_file_compressed', 'expand_symbol'] as const;
+
+export function summarize(events: readonly UsageEvent[]): StatsSummary {
+  const tokensBefore = events
+    .filter((e) => (BASELINE_TOOLS as readonly string[]).includes(e.tool))
+    .reduce((sum, e) => sum + e.tokensBefore, 0);
+  const tokensDelivered = events
+    .filter((e) => (DELIVERED_TOOLS as readonly string[]).includes(e.tool))
+    .reduce((sum, e) => sum + e.tokensAfter, 0);
+  return {
+    events: events.length,
+    tokensBefore,
+    tokensDelivered,
+    tokensSaved: tokensBefore - tokensDelivered,
+  };
 }
 
 /** Storage boundary: InMemoryEventStore for tests, PostgresEventStore for real runs. */
@@ -24,11 +53,7 @@ export class InMemoryEventStore implements EventStore {
     return Promise.resolve(this.events.length);
   }
   summary(): Promise<StatsSummary> {
-    return Promise.resolve({
-      events: this.events.length,
-      tokensBefore: this.events.reduce((sum, e) => sum + e.tokensBefore, 0),
-      tokensAfter: this.events.reduce((sum, e) => sum + e.tokensAfter, 0),
-    });
+    return Promise.resolve(summarize(this.events));
   }
 }
 

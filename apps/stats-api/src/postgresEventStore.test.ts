@@ -45,8 +45,15 @@ describe.skipIf(!url)('PostgresEventStore (real PostgreSQL)', () => {
   it('stores events and reads totals back', async () => {
     await store.add(event);
     await store.add({ ...event, tokensBefore: 100, tokensAfter: 40 });
-    expect(await store.count()).toBe(2);
-    expect(await store.summary()).toEqual({ events: 2, tokensBefore: 1000, tokensAfter: 340 });
+    // expand_symbol adds tokens to the agent's context: it counts as delivered, not as a baseline.
+    await store.add({ ...event, tool: 'expand_symbol', tokensBefore: 500, tokensAfter: 200 });
+    expect(await store.count()).toBe(3);
+    expect(await store.summary()).toEqual({
+      events: 3,
+      tokensBefore: 1000,
+      tokensDelivered: 540,
+      tokensSaved: 460,
+    });
   });
 
   it('keeps one project and one session row for repeated events', async () => {
