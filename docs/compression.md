@@ -75,7 +75,14 @@ export const SYNTAX_ERROR_RAW_WARNING =
   'Code is never omitted because of a parser problem.';
 ```
 
-**Connector-level fallback**: If the `WasmParser` itself fails to initialise or load a grammar (e.g., missing WASM file), the `read_file_compressed` tool surfaces a `LensError` with code `INTERNAL` or `UNSUPPORTED_LANGUAGE`. The agent receives an error response rather than silent degradation.
+**Connector-level behaviour (S2-19)**: `read_file_compressed` calls `compressPython` for the `signatures` level, so the rule above is what the agent gets. Whenever a file is returned unchanged instead of compressed, the tool result starts with a separate `[lens warning] ...` text block, and a fixed line (no path, no parser error text) goes to stderr. This covers both cases:
+
+- the parser reports a syntax error (`SYNTAX_ERROR_RAW_WARNING`);
+- the parser itself cannot run, for example the grammar file is missing or the parser crashes (`SIGNATURES_FAILED_WARNING`). The agent still receives the file, not an error, because hiding code is worse than skipping compression.
+
+`expand_symbol` follows the same principle: for a file with a syntax error it does not extract symbols from the broken tree. It returns `INVALID_INPUT` with a message that points to `read_file_compressed` at level `raw`, and it emits no usage event.
+
+Both tools only read files inside the project root (`LENS_PROJECT_ROOT`, or the working directory). A path outside it, or a symlink that leads outside it, returns `INVALID_INPUT`.
 
 ## 5. Marker Format
 
