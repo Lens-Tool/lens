@@ -32,14 +32,14 @@ LENS is a local MCP server that gives coding agents only the code a task needs a
 
 ## Key results so far
 
-| Result | Value | Caveat |
-| ------ | ----- | ------ |
-| Python fixture, `light` saves | 0.1% | 8 synthetic files, cl100k estimate |
+| Result                             | Value                                     | Caveat                                                       |
+| ---------------------------------- | ----------------------------------------- | ------------------------------------------------------------ |
+| Python fixture, `light` saves      | 0.1%                                      | 8 synthetic files, cl100k estimate                           |
 | Python fixture, `signatures` saves | 48.2% (short marker), 32.4% (long marker) | Per file, before `expand_symbol` calls; quality not measured |
-| Agent adoption (unprompted) | 0 of 6 runs | 1 agent, 3 tasks, tiny repo, one run per condition |
-| Agent told to use LENS | 2 of 3 runs used it | 4 failed calls from wrong parameter name |
-| SWE-bench Lite feasibility | "Maybe" | Dataset licence not found; needs 120 GB disk, 16 GB RAM |
-| Budget estimate (600 runs) | about $63 to $492 depending on model | Unsourced token assumptions; supervisor must decide who pays |
+| Agent adoption (unprompted)        | 0 of 6 runs                               | 1 agent, 3 tasks, tiny repo, one run per condition           |
+| Agent told to use LENS             | 2 of 3 runs used it                       | 4 failed calls from wrong parameter name                     |
+| SWE-bench Lite feasibility         | "Maybe"                                   | Dataset licence not found; needs 120 GB disk, 16 GB RAM      |
+| Budget estimate (600 runs)         | about $63 to $492 depending on model      | Unsourced token assumptions; supervisor must decide who pays |
 
 ## Open decisions (owner)
 
