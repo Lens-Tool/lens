@@ -6,12 +6,13 @@ import { GRAMMARS_DIR, GRAMMAR_FILES } from './grammars.js';
 import type { CodeParser, ParsedFile, SyntaxNode } from './types.js';
 
 // Error messages go back to the agent, so they must never contain file paths (they can include the
-// user name). The original error is written to stderr only; stderr stays on this machine.
+// user name). Logs follow the same rule: only fixed messages go to stderr, never the original error,
+// because its message can contain an install path (ADR 0002, ADR 0010).
 let runtimeReady: Promise<void> | undefined;
 function initRuntime(): Promise<void> {
-  runtimeReady ??= Parser.init().catch((cause: unknown) => {
+  runtimeReady ??= Parser.init().catch(() => {
     runtimeReady = undefined;
-    console.error('[lens] web-tree-sitter initialisation failed:', cause);
+    console.error('[lens] web-tree-sitter initialisation failed.');
     throw new LensError('INTERNAL', 'Could not initialise web-tree-sitter.');
   });
   return runtimeReady;
@@ -120,8 +121,8 @@ export class WasmParser implements CodeParser {
     try {
       const bytes = await readFile(join(GRAMMARS_DIR, file));
       return await Parser.Language.load(new Uint8Array(bytes));
-    } catch (cause: unknown) {
-      console.error(`[lens] could not load the ${language} grammar:`, cause);
+    } catch {
+      console.error(`[lens] could not load the ${language} grammar.`);
       throw new LensError('INTERNAL', `Could not load the ${language} grammar.`);
     }
   }
