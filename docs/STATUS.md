@@ -18,9 +18,10 @@ LENS is a local MCP server that gives coding agents only the code a task needs a
 - MCP tools `read_file_compressed` and `expand_symbol` (agent run 1 used commit 2bb44bd with these two tools).
 - Privacy-gated `UsageEvent` and minimal statistics API with PostgreSQL migrations.
 - Anonymous project/session IDs (ADR 0003, S2-14).
-- Syntax-error fallback rule for the AST compressor (S2-07, documented). implemented.
-- Real tokenizer (`js-tiktoken`) and regenerated Python savings report (ADR 0010, 2026-11-22). merged.
-- Research: tree-sitter spike (S1-08), secrets patterns (S1-07), benchmark feasibility (S2-16), agent run 1.
+- Syntax-error fallback rule for the AST compressor (S2-07): implemented and documented. `read_file_compressed` returns the raw file with a `[lens warning]` block; `expand_symbol` refuses files with syntax errors.
+- Real tokenizer (`js-tiktoken`) and regenerated Python savings report (ADR 0010, 2026-11-22): merged.
+- Research: tree-sitter spike (S1-08, report still a draft: Windows and macOS results are empty), secrets patterns (S1-07, draft: patterns not yet checked against official docs), benchmark feasibility (S2-16), agent run 1.
+- Release review fixes (S2-19): both tools read only inside the project root, the stats summary reports net savings (`tokensSaved`, can be negative), `NOT_FOUND` for a missing symbol, fixed log messages, non-breaking `npm audit fix`.
 
 ## In progress / next (VERIFY against ClickUp)
 
@@ -29,6 +30,14 @@ LENS is a local MCP server that gives coding agents only the code a task needs a
 - Choose final marker format and default compression level.
 - Tool description, `file_path` parameter alias and line numbers in `light` output (hypotheses from agent run 1).
 - Task & Context Layer (`prepare_task`), cache/diff, redaction, history compression, dashboard: planned, not started per README.
+
+## Known gaps in this release
+
+- Secrets redaction is not implemented: secrets in a file pass through unchanged in `read_file_compressed` and `expand_symbol`.
+- The connector makes no network calls: events are produced locally (visible with `LENS_DEBUG`) and are not sent to the statistics API yet.
+- The statistics API has no authentication or rate limiting (ADR 0004 is Proposed): not for public deployment.
+- Only the Python grammar is bundled: `signatures` and `expand_symbol` work for Python only.
+- Remaining `npm audit` items need major upgrades: `zod` (production, connector) and the `vitest`/`vite` chain (dev only).
 
 ## Key results so far
 
@@ -58,6 +67,6 @@ LENS is a local MCP server that gives coding agents only the code a task needs a
 ## Risks an examiner may raise
 
 - Net savings (after re-expansion) are unmeasured; per-file savings are not enough.
-- No answer-quality measurement yet (T3 failed in both modes).
+- No answer-quality measurement yet. T3 was not solved in either mode, but LENS was never called in Run 6 and neither run opened a file, so it says nothing about compression quality.
 - One run per task cannot show a real difference; plan repeats.
 - Benchmark is Python-only while LENS targets JS/TS.
