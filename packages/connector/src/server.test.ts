@@ -167,8 +167,7 @@ describe('expand_symbol tool (MCP protocol)', () => {
     });
     expect(result.isError).toBe(true);
     const output = text(result);
-    // TODO(NOT_FOUND): expect 'NOT_FOUND' here once the code exists in shared (PR #27).
-    expect(output).toMatch(/^INVALID_INPUT: /);
+    expect(output).toMatch(/^NOT_FOUND: /);
     expect(output).toContain('Symbol not found: NonExistent');
     expect(events).toHaveLength(0);
   });

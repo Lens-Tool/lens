@@ -41,9 +41,8 @@ export interface ExpandSymbolResultWithQualifiedName extends ExpandSymbolResult 
   qualifiedName: string;
 }
 
-// Internal constant for "symbol not found" - maps to INVALID_INPUT for now
-// TODO(NOT_FOUND): Switch to 'NOT_FOUND' once added to shared LensErrorCode
-export const SYMBOL_NOT_FOUND_CODE = 'INVALID_INPUT' as const;
+// Error code for "symbol not found" (NOT_FOUND exists in @lens/shared since S2-09).
+export const SYMBOL_NOT_FOUND_CODE = 'NOT_FOUND' as const;
 export const SYMBOL_NOT_FOUND_MSG = (symbol: string) => `Symbol not found: ${symbol}`;
 
 let sharedParser: Promise<WasmParser> | undefined;
