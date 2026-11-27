@@ -1,5 +1,4 @@
-import { readFile, realpath } from 'node:fs/promises';
-import * as path from 'node:path';
+import { readFile } from 'node:fs/promises';
 import { performance } from 'node:perf_hooks';
 import {
   detectLanguage,
@@ -18,6 +17,7 @@ import {
   type TokenCounter,
   type UsageEvent,
 } from '@lens/shared';
+import { resolveInsideRoot } from './pathGuard.js';
 
 export interface ExpandSymbolDeps {
   projectId: string;
@@ -83,12 +83,6 @@ function buildSymbolRef(sym: SymbolNode): SymbolRef {
   };
 }
 
-/** True when `target` is `root` or lies below it (both already absolute). */
-function isInside(root: string, target: string): boolean {
-  const relative = path.relative(root, target);
-  return relative !== '..' && !relative.startsWith('..' + path.sep) && !path.isAbsolute(relative);
-}
-
 export async function expandSymbol(
   inputPath: string,
   deps: ExpandSymbolDeps,
@@ -98,36 +92,8 @@ export async function expandSymbol(
   const now = deps.now ?? (() => new Date());
   const started = performance.now();
 
-  // 1. Validate path is inside repo root (with symlink resolution)
-  // The root may be written in a form that realpath() changes: a symlink or junction, a Windows 8.3
-  // short name (RUNNER~1) or macOS /var -> /private/var. A path under the root as the caller wrote it
-  // must still be accepted, so the cheap lexical check accepts either form of the root. The real
-  // security check is the second one, after realpath, where both sides are fully resolved.
-  const rawRoot = path.resolve(deps.repoRoot);
-  const realRoot = await realpath(deps.repoRoot);
-  const resolvedInputPath = path.isAbsolute(inputPath)
-    ? path.resolve(inputPath)
-    : path.resolve(rawRoot, inputPath);
-
-  // Check path traversal before realpath (which fails on non-existent paths)
-  if (!isInside(rawRoot, resolvedInputPath) && !isInside(realRoot, resolvedInputPath)) {
-    throw new LensError('INVALID_INPUT', 'Path must be inside the repository root.');
-  }
-
-  // Now resolve symlinks and check again
-  let realPath: string;
-  try {
-    realPath = await realpath(resolvedInputPath);
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-      throw new LensError('FILE_NOT_FOUND', 'The requested file does not exist.');
-    }
-    throw new LensError('INTERNAL', 'The file could not be read.');
-  }
-
-  if (!isInside(realRoot, realPath)) {
-    throw new LensError('INVALID_INPUT', 'Path must be inside the repository root.');
-  }
+  // 1. Validate path is inside repo root (with symlink resolution), see pathGuard.ts
+  const realPath = await resolveInsideRoot(deps.repoRoot, inputPath);
 
   // 2. Detect language first (cheap, no file read)
   const language = detectLanguage(realPath);

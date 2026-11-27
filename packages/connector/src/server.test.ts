@@ -460,3 +460,93 @@ describe('expand_symbol tool (temporary project folders)', () => {
     }
   });
 });
+
+describe('read_file_compressed stays inside the project root (S2-19)', () => {
+  let root: string;
+  let outside: string;
+  let client: Client;
+  let events: UsageEvent[];
+
+  beforeEach(async () => {
+    root = await mkdtemp(join(tmpdir(), 'lens-read-root-'));
+    outside = await mkdtemp(join(tmpdir(), 'lens-read-outside-'));
+    events = [];
+    const server = createServer({
+      projectId: 'proj_test0003',
+      sessionId: 'sess_test0003',
+      repoRoot: root,
+      onEvent: (event) => events.push(event),
+    });
+    const [clientSide, serverSide] = InMemoryTransport.createLinkedPair();
+    client = new Client({ name: 'test', version: '0.0.0' });
+    await Promise.all([server.connect(serverSide), client.connect(clientSide)]);
+  });
+
+  afterEach(async () => {
+    await client.close();
+    await rm(root, { recursive: true, force: true });
+    await rm(outside, { recursive: true, force: true });
+  });
+
+  const text = (result: Awaited<ReturnType<Client['callTool']>>): string =>
+    (result.content as { type: string; text: string }[]).map((c) => c.text).join('\n');
+
+  it('reads a file inside the root', async () => {
+    await writeFile(join(root, 'a.py'), 'def f():\n    return 1\n', 'utf8');
+    const result = await client.callTool({
+      name: 'read_file_compressed',
+      arguments: { path: join(root, 'a.py'), level: 'raw' },
+    });
+    expect(result.isError).toBeFalsy();
+    expect(text(result)).toContain('def f()');
+    expect(events).toHaveLength(1);
+  });
+
+  it('rejects an absolute path outside the root without echoing the path or content', async () => {
+    const file = join(outside, 'invented_outside.py');
+    await writeFile(file, 'TOKEN = "invented-value"\n', 'utf8');
+    const result = await client.callTool({
+      name: 'read_file_compressed',
+      arguments: { path: file, level: 'raw' },
+    });
+    expect(result.isError).toBe(true);
+    expect(text(result)).toMatch(/^INVALID_INPUT: Path must be inside the repository root/);
+    expect(text(result)).not.toContain('invented');
+    expect(events).toHaveLength(0);
+  });
+
+  it('rejects a relative path that climbs out of the root', async () => {
+    const result = await client.callTool({
+      name: 'read_file_compressed',
+      arguments: { path: '../outside.py' },
+    });
+    expect(result.isError).toBe(true);
+    expect(text(result)).toMatch(/^INVALID_INPUT: /);
+    expect(events).toHaveLength(0);
+  });
+
+  it('rejects a symlink inside the root that points outside it', async (ctx) => {
+    const target = join(outside, 'secret.py');
+    await writeFile(target, 'SECRET = "invented-value"\n', 'utf8');
+    try {
+      await symlink(target, join(root, 'link.py'));
+    } catch {
+      ctx.skip(); // for example Windows without the right to create symlinks
+    }
+    const result = await client.callTool({
+      name: 'read_file_compressed',
+      arguments: { path: join(root, 'link.py'), level: 'raw' },
+    });
+    expect(result.isError).toBe(true);
+    expect(text(result)).not.toContain('invented-value');
+  });
+
+  it('still returns FILE_NOT_FOUND for a missing file inside the root', async () => {
+    const result = await client.callTool({
+      name: 'read_file_compressed',
+      arguments: { path: join(root, 'missing.py') },
+    });
+    expect(result.isError).toBe(true);
+    expect(text(result)).toMatch(/^FILE_NOT_FOUND: /);
+  });
+});

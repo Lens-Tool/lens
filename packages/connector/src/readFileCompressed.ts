@@ -16,6 +16,7 @@ import {
   type TokenCounter,
   type UsageEvent,
 } from '@lens/shared';
+import { resolveInsideRoot } from './pathGuard.js';
 
 /**
  * Marker that replaces an omitted body at the `signatures` level:
@@ -28,6 +29,8 @@ export const SIGNATURES_MARKER: 'short' | 'long' = 'short';
 export interface ReadFileCompressedDeps {
   projectId: string;
   sessionId: string;
+  /** When set, only files inside this folder can be read (same rule as expand_symbol). */
+  repoRoot?: string;
   counter?: TokenCounter;
   now?: () => Date;
   /** Parser for the signatures level. Tests can pass their own; by default one is created once. */
@@ -113,9 +116,11 @@ export async function readFileCompressed(
     );
   }
 
+  const readPath = deps.repoRoot ? await resolveInsideRoot(deps.repoRoot, path) : path;
+
   let source: string;
   try {
-    source = await readFile(path, 'utf8');
+    source = await readFile(readPath, 'utf8');
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
       throw new LensError('FILE_NOT_FOUND', 'The requested file does not exist.');

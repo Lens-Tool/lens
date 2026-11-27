@@ -38,7 +38,7 @@ export function createServer(options: ServerOptions): McpServer {
     },
     async ({ path, level }) => {
       try {
-        const result = await readFileCompressed(path, options, level);
+        const result = await readFileCompressed(path, { ...options, repoRoot }, level);
         options.onEvent?.(result.event);
         return { content: [{ type: 'text' as const, text: result.content }] };
       } catch (error) {
