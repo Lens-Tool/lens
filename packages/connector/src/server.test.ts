@@ -172,6 +172,19 @@ describe('expand_symbol tool (MCP protocol)', () => {
     expect(events).toHaveLength(0);
   });
 
+  it('refuses to locate symbols in a file with syntax errors', async () => {
+    const result = await client.callTool({
+      name: 'expand_symbol',
+      arguments: { path: fixture('python-edge/syntax_error.py'), symbol: 'SampleService' },
+    });
+    expect(result.isError).toBe(true);
+    const output = text(result);
+    expect(output).toMatch(/^INVALID_INPUT: /);
+    expect(output).toContain('syntax errors');
+    expect(output).toContain('level "raw"');
+    expect(events).toHaveLength(0);
+  });
+
   it('returns all matches for a name that appears multiple times', async () => {
     const result = await client.callTool({
       name: 'expand_symbol',

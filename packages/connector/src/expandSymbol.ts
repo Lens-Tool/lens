@@ -117,9 +117,21 @@ export async function expandSymbol(
 
   // 4. Extract symbols
   const parser = deps.parser ?? (await getParser());
-  const symbols: SymbolNode[] = await withParsedFile(parser, source, 'python', (file) =>
-    extractPythonSymbols(file.root, source),
+  // A broken tree gives unreliable symbols (some are missing, line ranges can be wrong), so do not
+  // extract from it (docs/architecture.md, S2-07). Tell the agent how to get the code instead.
+  const extracted: SymbolNode[] | undefined = await withParsedFile(
+    parser,
+    source,
+    'python',
+    (file) => (file.hasSyntaxError ? undefined : extractPythonSymbols(file.root, source)),
   );
+  if (extracted === undefined) {
+    throw new LensError(
+      'INVALID_INPUT',
+      'The file has syntax errors, so symbols cannot be located reliably. Use read_file_compressed with level "raw" to read it.',
+    );
+  }
+  const symbols = extracted;
 
   // 5. Find matches (exact match on name or qualifiedName)
   const matches = findMatchingSymbols(symbols, symbol);
