@@ -87,6 +87,15 @@ export function createApp(store: EventStore = new InMemoryEventStore()): Express
       res.status(400).json({ error: error.toJSON() });
       return;
     }
+    // Malformed JSON or an oversized body is the client's mistake (4xx from body-parser). Fixed
+    // message only: the parser's own message can quote part of the body.
+    const status = (error as { status?: unknown }).status;
+    if (typeof status === 'number' && status >= 400 && status < 500) {
+      res.status(status === 413 ? 413 : 400).json({
+        error: { code: 'INVALID_INPUT', message: 'The request body is not valid.' },
+      });
+      return;
+    }
     res.status(500).json({ error: { code: 'INTERNAL', message: 'Unexpected error.' } });
   };
   app.use(onError);

@@ -52,6 +52,23 @@ describe('stats-api', () => {
     expect(JSON.stringify(res.body)).not.toContain('stack');
   });
 
+  it('returns 400 for malformed JSON without echoing the body', async () => {
+    const res = await request(createApp())
+      .post('/v1/events')
+      .set('Content-Type', 'application/json')
+      .send('{"filePath": "/home/me/invented.py",');
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('INVALID_INPUT');
+    expect(JSON.stringify(res.body)).not.toContain('invented');
+  });
+
+  it('returns 413 for a body over the 4 kb limit', async () => {
+    const res = await request(createApp())
+      .post('/v1/events')
+      .send({ ...event, padding: 'x'.repeat(5000) });
+    expect(res.status).toBe(413);
+  });
+
   // Leak scenario 5b: data in the URL query string is never stored
   it('stores only allow-listed fields and ignores query-string data', async () => {
     const stored: unknown[] = [];
