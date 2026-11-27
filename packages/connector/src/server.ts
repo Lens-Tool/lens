@@ -19,7 +19,7 @@ const TOOL_DESCRIPTION = [
   'and replaces long function and method bodies with a marker line such as "... # L8-11" (the original line range);',
   '"raw" returns the file unchanged.',
   'To see a body that a marker replaced, use expand_symbol(path, symbol).',
-  'A file that cannot be parsed is returned unchanged.',
+  'A file that cannot be parsed is returned unchanged, with a "[lens warning]" line before it.',
 ].join(' ');
 
 const LEVEL_DESCRIPTION =
@@ -40,7 +40,11 @@ export function createServer(options: ServerOptions): McpServer {
       try {
         const result = await readFileCompressed(path, { ...options, repoRoot }, level);
         options.onEvent?.(result.event);
-        return { content: [{ type: 'text' as const, text: result.content }] };
+        // The warning is a separate first block so the agent cannot mistake it for file content.
+        const warning = result.warning
+          ? [{ type: 'text' as const, text: `[lens warning] ${result.warning}` }]
+          : [];
+        return { content: [...warning, { type: 'text' as const, text: result.content }] };
       } catch (error) {
         const lens =
           error instanceof LensError ? error : new LensError('INTERNAL', 'Unexpected error.');

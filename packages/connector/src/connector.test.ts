@@ -89,6 +89,12 @@ describe('readFileCompressed levels', () => {
     const result = await readFileCompressed(path, deps, 'signatures');
     expect(result.content).toBe(readFileSync(path, 'utf8'));
     expect(result.tokensAfter).toBe(result.tokensBefore);
+    expect(result.warning).toMatch(/Syntax error detected/);
+  });
+
+  it('gives no warning when signatures are produced normally', async () => {
+    const result = await readFileCompressed(services, deps, 'signatures');
+    expect(result.warning).toBeUndefined();
   });
 
   it('falls back to the unchanged file when the parser fails', async () => {
@@ -100,6 +106,9 @@ describe('readFileCompressed levels', () => {
     const result = await readFileCompressed(services, { ...deps, parser: broken }, 'signatures');
     expect(result.content).toBe(readFileSync(services, 'utf8'));
     expect(result.content).not.toContain('someone');
+    // The agent is told, and the warning does not repeat the parser's error text.
+    expect(result.warning).toMatch(/Signatures could not be produced/);
+    expect(result.warning).not.toContain('someone');
   });
 
   it.each(['raw', 'light', 'signatures'] as const)(

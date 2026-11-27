@@ -1,4 +1,5 @@
 import { fileURLToPath } from 'node:url';
+import { readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { mkdtemp, writeFile, rm, symlink } from 'node:fs/promises';
@@ -471,6 +472,49 @@ describe('expand_symbol tool (temporary project folders)', () => {
       expect(text(result)).not.toContain(root);
       expect(text(result)).not.toContain('a.py');
     }
+  });
+});
+
+describe('read_file_compressed tells the agent when it returns a file unchanged (S2-19)', () => {
+  let client: Client;
+
+  beforeEach(async () => {
+    const server = createServer({
+      projectId: 'proj_test0004',
+      sessionId: 'sess_test0004',
+      repoRoot: fixtureDir,
+    });
+    const [clientSide, serverSide] = InMemoryTransport.createLinkedPair();
+    client = new Client({ name: 'test', version: '0.0.0' });
+    await Promise.all([server.connect(serverSide), client.connect(clientSide)]);
+  });
+
+  afterEach(async () => {
+    await client.close();
+  });
+
+  const blocks = (result: Awaited<ReturnType<Client['callTool']>>) =>
+    result.content as { type: string; text: string }[];
+
+  it('puts a warning block before the unchanged file for a syntax error', async () => {
+    const path = fixture('python-edge/syntax_error.py');
+    const result = await client.callTool({
+      name: 'read_file_compressed',
+      arguments: { path, level: 'signatures' },
+    });
+    expect(result.isError).toBeFalsy();
+    const [warning, file] = blocks(result);
+    expect(warning?.text).toMatch(/^\[lens warning\] Syntax error detected/);
+    expect(file?.text).toBe(readFileSync(path, 'utf8'));
+  });
+
+  it('sends only the file when there is nothing to warn about', async () => {
+    const result = await client.callTool({
+      name: 'read_file_compressed',
+      arguments: { path: fixture('python-repo/services.py'), level: 'signatures' },
+    });
+    expect(blocks(result)).toHaveLength(1);
+    expect(blocks(result)[0]?.text).not.toContain('[lens warning]');
   });
 });
 

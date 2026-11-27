@@ -1,12 +1,10 @@
 import { readFile } from 'node:fs/promises';
 import {
   compressLight,
+  compressPython,
   detectLanguage,
-  extractPythonSymbols,
   getDefaultTokenCounter,
-  renderSignatures,
   WasmParser,
-  withParsedFile,
   type CodeParser,
 } from '@lens/compression';
 import {
@@ -21,8 +19,8 @@ import { resolveInsideRoot } from './pathGuard.js';
 /**
  * Marker that replaces an omitted body at the `signatures` level:
  * - `short`: `... # L8-11` (the original line range; about 4 times cheaper in tokens)
- * - `long`: `... # lens: lines 8-11 omitted (expand_symbol name)` (names a tool that does not exist yet)
- * Keep `short` until expand_symbol (S2-09) is merged and the team has chosen the final format.
+ * - `long`: `... # lens: lines 8-11 omitted (expand_symbol name)` (names the expand_symbol tool)
+ * Keep `short` until the team has chosen the final format (ADR open item).
  */
 export const SIGNATURES_MARKER: 'short' | 'long' = 'short';
 
@@ -40,6 +38,8 @@ export interface ReadFileCompressedDeps {
 export interface ReadFileCompressedResult {
   content: string;
   language: Language;
+  /** Set when the file was returned unchanged instead of compressed. Shown to the agent. */
+  warning?: string;
   tokensBefore: number;
   tokensAfter: number;
   /** Anonymous statistics only: contains no path, code, prompt text or level. */
@@ -57,15 +57,13 @@ function getParser(): Promise<WasmParser> {
   return sharedParser;
 }
 
-/** Signatures-only text, or undefined when the file has a syntax error. */
-function toSignatures(source: string, parser: CodeParser): string | undefined {
-  return withParsedFile(parser, source, 'python', (file) =>
-    file.hasSyntaxError
-      ? undefined
-      : renderSignatures(source, extractPythonSymbols(file.root, source), {
-          marker: SIGNATURES_MARKER,
-        }),
-  );
+/** Shown when the parser could not run at all (missing grammar, crash). */
+export const SIGNATURES_FAILED_WARNING =
+  'Signatures could not be produced; returning the file unchanged at level raw. Code is never omitted because of a parser problem.';
+
+interface Applied {
+  content: string;
+  warning?: string;
 }
 
 async function applyLevel(
@@ -73,24 +71,27 @@ async function applyLevel(
   language: Language,
   level: CompressionLevel,
   deps: ReadFileCompressedDeps,
-): Promise<string> {
+): Promise<Applied> {
   switch (level) {
     case 'raw':
-      return source;
+      return { content: source };
     case 'light':
-      return compressLight(source, language).content;
+      return { content: compressLight(source, language).content };
     case 'signatures': {
-      // If signatures cannot be produced, return the file unchanged: a parser problem must never
-      // hide code from the agent. Warnings go to stderr (stdout is reserved for the MCP protocol).
+      // If signatures cannot be produced, return the file unchanged and say so: a parser problem
+      // must never hide code from the agent (S2-07). The warning goes to the agent in the tool
+      // result and a fixed line goes to stderr (stdout is reserved for the MCP protocol).
       try {
         const parser = deps.parser ?? (await getParser());
-        const rendered = toSignatures(source, parser);
-        if (rendered !== undefined) return rendered;
-        console.error('[lens] The file has a syntax error: returning it unchanged.');
+        const result = compressPython(parser, source, { marker: SIGNATURES_MARKER });
+        if (result.warning !== undefined) {
+          console.error('[lens] The file has a syntax error: returning it unchanged.');
+        }
+        return { content: result.content, warning: result.warning };
       } catch {
         console.error('[lens] Signatures could not be produced: returning the file unchanged.');
+        return { content: source, warning: SIGNATURES_FAILED_WARNING };
       }
-      return source;
     }
     default: {
       const unreachable: never = level; // compile error if a level is added and not handled
@@ -128,13 +129,14 @@ export async function readFileCompressed(
     throw new LensError('INTERNAL', 'The file could not be read.');
   }
 
-  const content = await applyLevel(source, language, level, deps);
+  const { content, warning } = await applyLevel(source, language, level, deps);
   const tokensBefore = counter.count(source);
   const tokensAfter = counter.count(content);
 
   return {
     content,
     language,
+    ...(warning !== undefined ? { warning } : {}),
     tokensBefore,
     tokensAfter,
     event: {
